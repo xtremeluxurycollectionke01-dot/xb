@@ -478,17 +478,25 @@ function calculateEffectivePermissions(rolePerms: any[], customPerms: any[] = []
   return merged;
 }
 
-// Type for route context
-type StaffRouteContext = { params: { id: string } };
+// Type for route context in Next.js 15+ (params is a Promise)
+type StaffRouteContext = {
+  params: Promise<{ id: string }>
+};
 
 ///////////////////////
 // GET /api/staff/[id]
-export async function GET(request: NextRequest, { params }: StaffRouteContext) {
+export async function GET(
+  request: NextRequest,
+  context: StaffRouteContext
+) {
   try {
+    // Await the params Promise to get the actual params object
+    const params = await context.params;
+    const { id } = params;
+    
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
     let currentStaff = null;
     let isOwnProfile = false;
     let isAdmin = false;
@@ -530,12 +538,18 @@ export async function GET(request: NextRequest, { params }: StaffRouteContext) {
 
 ///////////////////////
 // PATCH /api/staff/[id]
-export async function PATCH(request: NextRequest, { params }: StaffRouteContext) {
+export async function PATCH(
+  request: NextRequest,
+  context: StaffRouteContext
+) {
   try {
+    // Await the params Promise to get the actual params object
+    const params = await context.params;
+    const { id } = params;
+    
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
     let currentStaff = null;
     let isOwnProfile = false;
     let isAdmin = false;
@@ -576,7 +590,7 @@ export async function PATCH(request: NextRequest, { params }: StaffRouteContext)
     if (currentStaff) {
       const clientIp = getClientIp(request);
       const userAgent = request.headers.get('user-agent') || 'unknown';
-      await currentStaff.logActivity('STAFF_CREATED', 'STAFF', {
+      await currentStaff.logActivity('STAFF_UPDATED', 'STAFF', {
         targetId: staff._id,
         targetNumber: staff.employeeId,
         previousValue: body,
@@ -600,8 +614,15 @@ export async function PATCH(request: NextRequest, { params }: StaffRouteContext)
 
 ///////////////////////
 // DELETE /api/staff/[id]
-export async function DELETE(request: NextRequest, { params }: StaffRouteContext) {
+export async function DELETE(
+  request: NextRequest,
+  context: StaffRouteContext
+) {
   try {
+    // Await the params Promise to get the actual params object
+    const params = await context.params;
+    const { id } = params;
+    
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -614,7 +635,6 @@ export async function DELETE(request: NextRequest, { params }: StaffRouteContext
 
     if (!isAdmin) return NextResponse.json({ error: 'Admin permission required' }, { status: 403 });
 
-    const { id } = params;
     if (currentStaff && currentStaff._id.toString() === id)
       return NextResponse.json({ error: 'Cannot deactivate yourself' }, { status: 400 });
 
@@ -631,7 +651,7 @@ export async function DELETE(request: NextRequest, { params }: StaffRouteContext
     if (currentStaff) {
       const clientIp = getClientIp(request);
       const userAgent = request.headers.get('user-agent') || 'unknown';
-      await currentStaff.logActivity('STAFF_CREATED', 'STAFF', {
+      await currentStaff.logActivity('STAFF_DEACTIVATED', 'STAFF', {
         targetId: result._id,
         targetNumber: result.employeeId,
         previousValue: 'ACTIVE',
