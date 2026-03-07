@@ -137,17 +137,21 @@ import { Staff } from '@/models/Staff';
 import { Types } from 'mongoose';
 import { authenticateRequest } from '@/lib/middleware/auth';
 
-// Proper typing for App Router route context
-type StaffRouteContext = { params: { id: string } };
+// Next.js 15+ route context - params is now a Promise
+type StaffRouteContext = { 
+  params: Promise<{ id: string }> 
+};
 
-export async function GET(request: NextRequest, { params }: StaffRouteContext) {
+export async function GET(request: NextRequest, context: StaffRouteContext) {
   try {
+    // Await params in Next.js 15+
+    const { id } = await context.params;
+    
     const auth = await authenticateRequest(request);
     if (!auth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
     const { searchParams } = new URL(request.url);
 
     const checkAt = searchParams.get('at'); // ISO timestamp or 'now'
