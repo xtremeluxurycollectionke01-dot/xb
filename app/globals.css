@@ -1,0 +1,107 @@
+/* ============================= */
+/* Tailwind Import (v4)          */
+/* ============================= */
+@import "tailwindcss";
+
+/* ============================= */
+/* Base Layer (CSS Variables)    */
+/* ============================= */
+@layer base {
+  :root {
+    /* Brand Green Scale */
+    --brand-50: #DFFFE6;
+    --brand-100: #B8F5C2;
+    --brand-200: #8EE89F;
+    --brand-300: #63DB7C;
+    --brand-400: #3FCC63;
+    --brand-500: #1FB84F;
+    --brand-600: #14963F;
+    --brand-700: #0E6F2F;
+    --brand-800: #0A4F22;
+    --brand-900: #063819;
+
+    /* Neutrals */
+    --dark-text: #0F172A;
+    --light-text: #F8FAFC;
+    --soft-gray: #F1F5F9;
+    --card-border: #E2E8F0;
+    --white: #FFFFFF;
+    --black: #000000;
+
+    /* RGB values */
+    --white-rgb: 255, 255, 255;
+    --dark-rgb: 15, 23, 42;
+  }
+
+  .dark {
+    --dark-text: #F8FAFC;
+    --light-text: #0F172A;
+    --soft-gray: #1E293B;
+    --card-border: #334155;
+    --white: #0F172A;
+    --black: #FFFFFF;
+
+    --brand-50: #063819;
+    --brand-100: #0A4F22;
+    --brand-200: #0E6F2F;
+    --brand-300: #14963F;
+    --brand-400: #1FB84F;
+    --brand-500: #3FCC63;
+    --brand-600: #63DB7C;
+    --brand-700: #8EE89F;
+    --brand-800: #B8F5C2;
+    --brand-900: #DFFFE6;
+
+    --white-rgb: 15, 23, 42;
+    --dark-rgb: 248, 250, 252;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+body {
+  @apply bg-white text-[var(--dark-text)];
+}
+
+.dark body {
+  @apply bg-[var(--white)] text-[var(--light-text)];
+}
+}
+
+/* ============================= */
+/* Components Layer              */
+/* ============================= */
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4;
+  }
+
+  .section-padding {
+    @apply py-12;
+  }
+}
+
+/* ============================= */
+/* Responsive Variants (v4)      */
+/* ============================= */
+@media (min-width: 640px) {
+  .container-custom {
+    @apply px-6;
+  }
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    @apply py-16;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    @apply px-8;
+  }
+  .section-padding {
+    @apply py-20;
+  }
+}
