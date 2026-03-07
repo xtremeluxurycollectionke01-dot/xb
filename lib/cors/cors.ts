@@ -79,8 +79,11 @@ export function corsHeaders(origin: string = 'http://127.0.0.1:5500') {
   };
 }*/
 
+
+
+
 // lib/cors.ts
-import { NextRequest, NextResponse } from 'next/server';
+/*import { NextRequest, NextResponse } from 'next/server';
 
 type Handler = (req: NextRequest) => Promise<Response> | Response;
 
@@ -177,5 +180,136 @@ export function corsHeaders(origin: string = '') {
     'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
     'Access-Control-Allow-Credentials': 'true'
+  };
+}*/
+
+// lib/cors.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+type Handler = (req: NextRequest) => Promise<Response> | Response;
+
+interface CORSOptions {
+  allowedOrigins?: string[];
+  allowCredentials?: boolean;
+  allowedMethods?: string[];
+  allowedHeaders?: string[];
+  maxAge?: number;
+}
+
+export function withCORS(
+  handler: Handler, 
+  origins?: string | string[] | CORSOptions
+) {
+  return async (req: NextRequest) => {
+    const origin = req.headers.get('origin') || '';
+    
+    // Default allowed origins
+    const defaultOrigins = [
+      'http://127.0.0.1:5500',
+      'http://localhost:5500',
+      'http://127.0.0.1:3000',
+      'http://localhost:3000'
+    ];
+
+    // Parse options
+    let allowedOrigins = defaultOrigins;
+    let options: CORSOptions = {};
+
+    if (origins) {
+      if (typeof origins === 'string') {
+        allowedOrigins = [origins];
+      } else if (Array.isArray(origins)) {
+        allowedOrigins = origins;
+      } else {
+        // It's a CORSOptions object
+        options = origins;
+        allowedOrigins = options.allowedOrigins || defaultOrigins;
+      }
+    }
+
+    // More flexible origin matching - trim and check patterns
+    const trimmedOrigin = origin.trim();
+    
+    // Check if origin is allowed (with trimming)
+    const isAllowed = allowedOrigins.some(allowed => 
+      trimmedOrigin === allowed || 
+      trimmedOrigin.startsWith(allowed + '/') ||
+      allowed.startsWith(trimmedOrigin + '/')
+    );
+    
+    const allowedOrigin = isAllowed ? trimmedOrigin : allowedOrigins[0];
+    
+    // Log for debugging
+    console.log(`[CORS] Request from origin: "${origin}"`);
+    console.log(`[CORS] Trimmed origin: "${trimmedOrigin}"`);
+    console.log(`[CORS] Allowed origin: "${allowedOrigin}"`);
+    console.log(`[CORS] Method: ${req.method}`);
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': allowedOrigin,
+          'Access-Control-Allow-Methods': options.allowedMethods?.join(', ') || 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': options.allowedHeaders?.join(', ') || 'Content-Type, Authorization, X-Requested-With',
+          'Access-Control-Allow-Credentials': options.allowCredentials !== false ? 'true' : 'false',
+          'Access-Control-Max-Age': (options.maxAge || 86400).toString()
+        }
+      });
+    }
+
+    try {
+      // Handle actual request
+      const response = await handler(req);
+      
+      // Add CORS headers to response
+      response.headers.set('Access-Control-Allow-Origin', allowedOrigin);
+      response.headers.set('Access-Control-Allow-Credentials', options.allowCredentials !== false ? 'true' : 'false');
+      response.headers.set('Access-Control-Allow-Methods', options.allowedMethods?.join(', ') || 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+      response.headers.set('Access-Control-Allow-Headers', options.allowedHeaders?.join(', ') || 'Content-Type, Authorization, X-Requested-With');
+
+      return response;
+    } catch (error) {
+      console.error('[CORS Handler] Error:', error);
+      return new NextResponse(
+        JSON.stringify({ error: 'Internal server error' }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': allowedOrigin,
+            'Access-Control-Allow-Credentials': options.allowCredentials !== false ? 'true' : 'false'
+          }
+        }
+      );
+    }
+  };
+}
+
+// Helper for custom responses
+export function corsHeaders(origin: string = '', options?: CORSOptions) {
+  const trimmedOrigin = origin.trim();
+  const allowedOrigins = options?.allowedOrigins || [
+    'http://127.0.0.1:5500',
+    'http://localhost:5500',
+    'http://127.0.0.1:3000',
+    'http://localhost:3000'
+  ];
+  
+  const isAllowed = allowedOrigins.some(allowed => 
+    trimmedOrigin === allowed || 
+    trimmedOrigin.startsWith(allowed + '/') ||
+    allowed.startsWith(trimmedOrigin + '/')
+  );
+  
+  const allowedOrigin = isAllowed ? trimmedOrigin : allowedOrigins[0];
+  
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': options?.allowedMethods?.join(', ') || 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': options?.allowedHeaders?.join(', ') || 'Content-Type, Authorization, X-Requested-With',
+    'Access-Control-Allow-Credentials': options?.allowCredentials !== false ? 'true' : 'false',
+    'Access-Control-Max-Age': (options?.maxAge || 86400).toString()
   };
 }
