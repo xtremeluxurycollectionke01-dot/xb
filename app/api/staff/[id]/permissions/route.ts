@@ -130,20 +130,23 @@ import { Staff } from '@/models/Staff';
 import { Types } from 'mongoose';
 import { authenticateRequest, hasPermission as hasUserPermission } from '@/lib/middleware/auth';
 
-interface RouteParams {
-  params: { id: string };
-}
+// Next.js 15+ route context - params is now a Promise
+type RouteParams = { 
+  params: Promise<{ id: string }> 
+};
 
-export async function POST(request: NextRequest, { params }: RouteParams) {
+export async function POST(request: NextRequest, context: RouteParams) {
   try {
+    // Await params in Next.js 15+
+    const { id } = await context.params;
+    
     const auth = await authenticateRequest(request);
     if (!auth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
     const body = await request.json();
-    const { resource, action, context = {}, checkAlternatives = true } = body;
+    const { resource, action, context: permContext = {}, checkAlternatives = true } = body;
 
     if (!resource || !action) {
       return NextResponse.json(
@@ -162,15 +165,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       resource as any,
       action as any,
       {
-        orderValue: context.orderValue,
-        isOwnWork: context.isOwnWork
+        orderValue: permContext.orderValue,
+        isOwnWork: permContext.isOwnWork
       }
     );
 
     // Fallback: check AuthContext permissions
     const hasAuthPerm = hasUserPermission(auth, resource, action, {
-      value: context.orderValue,
-      isOwner: context.isOwnWork
+      value: permContext.orderValue,
+      isOwner: permContext.isOwnWork
     });
 
     const isAllowed = hasPerm || hasAuthPerm;
@@ -180,7 +183,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       staffId: id,
       resource,
       action,
-      context,
+      context: permContext,
       checkedBy: auth.staffId === id ? 'self' : 'other'
     };
 
@@ -194,16 +197,16 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       } else if (!resourcePerm.actions.includes(action)) {
         result.reason = `Action '${action}' not permitted for your role`;
         result.yourActions = resourcePerm.actions;
-      } else if (context.orderValue && resourcePerm.conditions?.maxOrderValue) {
-        if (context.orderValue > resourcePerm.conditions.maxOrderValue) {
-          result.reason = `Order value (${context.orderValue}) exceeds your limit (${resourcePerm.conditions.maxOrderValue})`;
+      } else if (permContext.orderValue && resourcePerm.conditions?.maxOrderValue) {
+        if (permContext.orderValue > resourcePerm.conditions.maxOrderValue) {
+          result.reason = `Order value (${permContext.orderValue}) exceeds your limit (${resourcePerm.conditions.maxOrderValue})`;
           result.escalationPath = {
             message: 'Requires manager approval',
             approverRoles: ['SALES_MANAGER', 'SYSTEM_ADMIN'],
             alternativeAction: 'SUBMIT_FOR_APPROVAL'
           };
         }
-      } else if (action === 'APPROVE' && context.isOwnWork && !resourcePerm.conditions?.canApproveOwn) {
+      } else if (action === 'APPROVE' && permContext.isOwnWork && !resourcePerm.conditions?.canApproveOwn) {
         result.reason = 'Separation of duties: Cannot approve your own work';
         result.escalationPath = {
           message: 'Ask a colleague or manager to approve',

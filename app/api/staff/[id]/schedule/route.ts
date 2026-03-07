@@ -187,9 +187,10 @@ import { Staff } from '@/models/Staff';
 import { Types } from 'mongoose';
 import { authenticateRequest, hasPermission } from '@/lib/middleware/auth';
 
-interface RouteParams {
-  params: { id: string };
-}
+// Next.js 15+ route context - params is now a Promise
+type RouteParams = { 
+  params: Promise<{ id: string }> 
+};
 
 // Helper: extract client IP from headers
 function getClientIp(request: NextRequest): string {
@@ -203,12 +204,14 @@ function getClientIp(request: NextRequest): string {
 }
 
 // GET /api/staff/[id]/schedule
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, context: RouteParams) {
   try {
+    // Await params in Next.js 15+
+    const { id } = await context.params;
+    
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
     const staff = await Staff.findById(id).select('schedule timezone firstName lastName').lean();
     if (!staff) return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
 
@@ -249,12 +252,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 }
 
 // PATCH /api/staff/[id]/schedule
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export async function PATCH(request: NextRequest, context: RouteParams) {
   try {
+    // Await params in Next.js 15+
+    const { id } = await context.params;
+    
     const auth = await authenticateRequest(request);
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
     const currentStaff = auth.staffId ? await Staff.findById(new Types.ObjectId(auth.staffId)) : null;
 
     const isOwnProfile = currentStaff?._id.toString() === id;
