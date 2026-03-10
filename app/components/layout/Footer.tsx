@@ -360,7 +360,8 @@ import {
   FiTwitter, 
   FiLinkedin, 
   FiInstagram,
-  FiSend 
+  FiSend, 
+  FiNavigation
 } from 'react-icons/fi'
 import Container from './Container'
 import Button from '../ui/Button'
@@ -467,19 +468,25 @@ export default function Footer() {
                 <div className="p-2 bg-[var(--brand-400)]/10 rounded-lg mr-3 group-hover:bg-[var(--brand-400)]/20 transition-colors">
                   <FiMapPin className="w-4 h-4 text-[var(--brand-400)]" />
                 </div>
-                <span>123 Industrial Area, Nairobi, Kenya</span>
+                <span>Ruby-Mall - 4th floor, Nairobi, Kenya</span>
+              </div>
+              <div className="flex items-center text-sm text-gray-300 group hover:text-[var(--brand-400)] transition-colors">
+                <div className="p-2 bg-[var(--brand-400)]/10 rounded-lg mr-3 group-hover:bg-[var(--brand-400)]/20 transition-colors">
+                  <FiNavigation className="w-4 h-4 text-[var(--brand-400)]" />
+                </div>
+                <span>Off Accra Road behind NCBA Bank</span>
               </div>
               <div className="flex items-center text-sm text-gray-300 group hover:text-[var(--brand-400)] transition-colors">
                 <div className="p-2 bg-[var(--brand-400)]/10 rounded-lg mr-3 group-hover:bg-[var(--brand-400)]/20 transition-colors">
                   <FiPhone className="w-4 h-4 text-[var(--brand-400)]" />
                 </div>
-                <span>+254 700 123 456</span>
+                <span>0721 939 914 , 0722 772 254</span>
               </div>
               <div className="flex items-center text-sm text-gray-300 group hover:text-[var(--brand-400)] transition-colors">
                 <div className="p-2 bg-[var(--brand-400)]/10 rounded-lg mr-3 group-hover:bg-[var(--brand-400)]/20 transition-colors">
                   <FiMail className="w-4 h-4 text-[var(--brand-400)]" />
                 </div>
-                <span>info@linkchem.co.ke</span>
+                <span>linkchemsupplies@gmail.com</span>
               </div>
             </div>
 
