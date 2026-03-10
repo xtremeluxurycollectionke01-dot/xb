@@ -12,7 +12,7 @@ const slides = [
     id: 1,
     title: 'Your Office & Scientific Supplies Partner',
     description: 'Complete laboratory solutions from equipment to reagents',
-    image: 'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=1200',
+    image: 'https://images.unsplash.com/photo-1572884267966-02340ebc90ac?w=1200&auto=format&fit=crop',
     cta: 'Shop Now',
     cta2: 'Request Quote',
   },
