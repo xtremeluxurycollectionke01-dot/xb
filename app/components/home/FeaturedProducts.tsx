@@ -364,6 +364,8 @@ import { cn } from '@/app/lib/utils'
 import Container from '../layout/Container'
 import SectionHeading from '../ui/SectionHeading'
 import Button from '../ui/Button'
+import { useCart } from '@/app/context/CartContext'
+import { toast } from 'react-hot-toast' 
 
 type Product = {
   id: number
@@ -530,6 +532,31 @@ function ProductCard({
     }
   }
 
+
+  const { addToCart } = useCart()
+
+  const handleAddToCart = () => {
+  addToCart({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    image: product.image,
+    maxStock: product.inStock ? 10 : 0 // Example max stock
+  })
+  
+  // Show success toast
+  toast.success(`${product.name} added to cart!`, {
+    duration: 3000,
+    position: 'top-right',
+    icon: '🛒',
+    style: {
+      background: 'var(--brand-500)',
+      color: 'white',
+      borderRadius: '12px',
+    }
+  })
+}
+
   return (
     <div
       className="group relative"
@@ -660,11 +687,30 @@ function ProductCard({
           </div>
 
           {/* Add to Cart Button */}
+          {/*<Button
+            variant="primary"
+            size="sm"
+            fullWidth
+            disabled={!product.inStock}
+            className={cn(
+              "group/btn relative overflow-hidden transition-all duration-300",
+              product.inStock && "hover:shadow-lg transform hover:-translate-y-0.5"
+            )}
+          >
+            <span className="relative z-10 flex items-center justify-center">
+              <FiShoppingCart className="w-4 h-4 mr-2 transition-transform duration-300 group-hover/btn:scale-110" />
+              {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+            </span>
+            {product.inStock && (
+              <span className="absolute inset-0 bg-gradient-to-r from-[var(--brand-600)] to-[var(--brand-700)] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></span>
+            )}
+          </Button>*/}
           <Button
             variant="primary"
             size="sm"
             fullWidth
             disabled={!product.inStock}
+            onClick={handleAddToCart}
             className={cn(
               "group/btn relative overflow-hidden transition-all duration-300",
               product.inStock && "hover:shadow-lg transform hover:-translate-y-0.5"

@@ -10,6 +10,7 @@
     "fix:schedules": "node scripts/fix-staff-schedules.js"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "dotenv": "^17.3.1",
@@ -20,6 +21,7 @@
     "otplib": "^13.2.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "tailwind-merge": "^3.5.0"
   },

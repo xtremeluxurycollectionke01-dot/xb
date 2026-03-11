@@ -1036,6 +1036,7 @@ import { cn } from '@/app/lib/utils'
 import { useAuth } from '@/app/hooks/useAuth'
 import Button from '../ui/Button'
 import Container from './Container'
+import { useCart } from '@/app/context/CartContext'
 
 const navigation = [
   { name: 'Products', href: '/products' },
@@ -1066,6 +1067,7 @@ export default function Navigation() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const pathname = usePathname()
   const { user, isAuthenticated, logout } = useAuth()
+  const { totalItems, setIsCartOpen } = useCart()
 
   // Scroll detection for sticky navbar
   useEffect(() => {
@@ -1194,7 +1196,7 @@ export default function Navigation() {
             </div>
 
             {/* Cart with elegant badge */}
-            <Link href="/cart" className="relative group">
+            {/*<Link href="/cart" className="relative group">
               <button 
                 className="p-2.5 text-gray-600 dark:text-gray-400 hover:text-[var(--brand-600)] dark:hover:text-[var(--brand-400)] hover:bg-[var(--brand-50)] dark:hover:bg-[var(--brand-900)] rounded-xl transition-all duration-300 relative"
                 aria-label="Shopping cart"
@@ -1203,6 +1205,26 @@ export default function Navigation() {
                 <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[var(--brand-500)] to-[var(--brand-600)] text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center px-1 shadow-lg">
                   3
                 </span>
+              </button>
+              <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                Cart
+              </span>
+            </Link>*/}
+            {/* Desktop Cart Button */}
+            <Link href="/cart" className="relative group" onClick={(e) => {
+              e.preventDefault()
+              setIsCartOpen(true)
+            }}>
+              <button 
+                className="p-2.5 text-gray-600 dark:text-gray-400 hover:text-[var(--brand-600)] dark:hover:text-[var(--brand-400)] hover:bg-[var(--brand-50)] dark:hover:bg-[var(--brand-900)] rounded-xl transition-all duration-300 relative"
+                aria-label="Shopping cart"
+              >
+                <FiShoppingCart className="w-5 h-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[var(--brand-500)] to-[var(--brand-600)] text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center px-1 shadow-lg animate-pulse">
+                    {totalItems}
+                  </span>
+                )}
               </button>
               <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
                 Cart
@@ -1452,7 +1474,7 @@ export default function Navigation() {
                     <span className="text-xs mt-1">Search</span>
                   </button>
                   
-                  <Link href="/cart" onClick={() => setIsOpen(false)}>
+                  {/*<Link href="/cart" onClick={() => setIsOpen(false)}>
                     <button 
                       className="flex flex-col items-center p-2 text-gray-600 dark:text-gray-400 hover:text-[var(--brand-600)] dark:hover:text-[var(--brand-400)] group relative"
                       aria-label="Shopping cart"
@@ -1465,8 +1487,30 @@ export default function Navigation() {
                       </div>
                       <span className="text-xs mt-1">Cart</span>
                     </button>
-                  </Link>
-                  
+                  </Link>*/}
+
+                  {/* Mobile Cart Button */}
+                    <Link href="/cart" onClick={(e) => {
+                      e.preventDefault()
+                      setIsCartOpen(true)
+                      setIsOpen(false)
+                    }}>
+                      <button 
+                        className="flex flex-col items-center p-2 text-gray-600 dark:text-gray-400 hover:text-[var(--brand-600)] dark:hover:text-[var(--brand-400)] group relative"
+                        aria-label="Shopping cart"
+                      >
+                        <div className="p-2 rounded-xl group-hover:bg-[var(--brand-50)] dark:group-hover:bg-[var(--brand-900)] transition-all duration-300 relative">
+                          <FiShoppingCart className="w-5 h-5" />
+                          {totalItems > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[var(--brand-500)] to-[var(--brand-600)] text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center px-1 shadow-lg">
+                              {totalItems}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs mt-1">Cart</span>
+                      </button>
+                    </Link>
+                                      
                   <button
                     onClick={() => setIsDark(!isDark)}
                     className="flex flex-col items-center p-2 text-gray-600 dark:text-gray-400 hover:text-[var(--brand-600)] dark:hover:text-[var(--brand-400)] group"

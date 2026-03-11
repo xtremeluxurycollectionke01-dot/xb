@@ -1,4 +1,4 @@
-'use client';
+/*'use client';
 
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/app/components/auth/AuthContext";
@@ -23,6 +23,47 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         </main>
         {!hideLayout && <FloatingMessageButton />}
         {!hideLayout && <Footer />}
+      </AuthProvider>
+    </body>
+  );
+}*/
+
+'use client';
+
+import { Geist, Geist_Mono } from "next/font/google";
+import { AuthProvider } from "@/app/components/auth/AuthContext";
+import { CartProvider } from "@/app/context/CartContext";
+import Navigation from "@/app/components/layout/Navigation";
+import Footer from "@/app/components/layout/Footer";
+import FloatingMessageButton from "@/app/components/messaging/FloatingMessageButton";
+import CartDrawer from "@/app/components/cart/CartDrawer";
+import { usePathname } from "next/navigation";
+
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const hideLayout = pathname === '/messaging';
+
+  return (
+    <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
+      <AuthProvider>
+        <CartProvider>
+
+          {!hideLayout && <Navigation />}
+
+          <main className={`flex-grow ${hideLayout ? '' : 'pt-20'}`}>
+            {children}
+          </main>
+
+          {/* Cart Drawer */}
+          <CartDrawer />
+
+          {!hideLayout && <FloatingMessageButton />}
+          {!hideLayout && <Footer />}
+
+        </CartProvider>
       </AuthProvider>
     </body>
   );
