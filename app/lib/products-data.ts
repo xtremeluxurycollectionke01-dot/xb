@@ -393,8 +393,8 @@ export const products: Product[] = [
     rating: 4.5,
     reviewCount: 128,
     images: [
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
-      'https://images.unsplash.com/photo-1576086213360-ff97d0d37d2b?w=400',
+      'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
+      'https://images.nsplash.com/photo-1576086213360-ff97d0d37d2b?w=400',
     ],
     specifications: {
       'Material': 'Borosilicate Glass',
@@ -468,8 +468,8 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 95,
     images: [
-      'https://images.unsplash.com/photo-1576086213360-ff97d0d37d2b?w=400',
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
+      'https://images.nsplash.com/photo-1576086213360-ff97d0d37d2b?w=400',
+      'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
     ],
     specifications: {
       'Material': 'Borosilicate Glass',
@@ -498,8 +498,8 @@ export const products: Product[] = [
     rating: 4.6,
     reviewCount: 42,
     images: [
-      'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400',
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
+      'https://images.nsplash.com/photo-1581091226033-d5c48150dbaa?w=400',
+      'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
     ],
     specifications: {
       'Material': 'Borosilicate Glass',
@@ -527,8 +527,8 @@ export const products: Product[] = [
     rating: 4.9,
     reviewCount: 56,
     images: [
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
-      'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?w=400',
+      'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
+      'https://images.nsplash.com/photo-1581093588401-fbb62a02f120?w=400',
     ],
     specifications: {
       'Magnification': '1000x',
@@ -593,8 +593,8 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 34,
     images: [
-      'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?w=400',
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
+      'https://images.nsplash.com/photo-1581093588401-fbb62a02f120?w=400',
+      'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
     ],
     specifications: {
       'Max Speed': '4000 RPM',
@@ -622,7 +622,7 @@ export const products: Product[] = [
     rating: 4.4,
     reviewCount: 78,
     images: [
-      'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400',
+      'https://images.nsplash.com/photo-1532094349884-543bc11b234d?w=400',
     ],
     specifications: {
       'Purity': '37%',
@@ -650,7 +650,7 @@ export const products: Product[] = [
     rating: 4.3,
     reviewCount: 112,
     images: [
-      'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400',
+      'https://images.nsplash.com/photo-1581091226033-d5c48150dbaa?w=400',
     ],
     specifications: {
       'Purity': '99%',
@@ -678,7 +678,7 @@ export const products: Product[] = [
     rating: 4.6,
     reviewCount: 234,
     images: [
-      'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=400',
+      'https://images.nsplash.com/photo-1497032628192-86f99bcd76bc?w=400',
     ],
     specifications: {
       'Size': 'A4',
@@ -707,7 +707,7 @@ export const products: Product[] = [
     rating: 4.5,
     reviewCount: 189,
     images: [
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
+      'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
     ],
     specifications: {
       'Type': 'Ballpoint',

@@ -95,7 +95,7 @@ export const catalogueItems: CatalogueItem[] = [
       { quantity: 50, price: 300 },
     ],
     inStock: true,
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
+    image: 'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
     pageNumber: 12,
   },
   {
@@ -113,7 +113,7 @@ export const catalogueItems: CatalogueItem[] = [
       { quantity: 20, price: 500 },
     ],
     inStock: true,
-    image: 'https://images.unsplash.com/photo-1576086213360-ff97d0d37d2b?w=400',
+    image: 'https://images.nsplash.com/photo-1576086213360-ff97d0d37d2b?w=400',
     pageNumber: 13,
   },
   {
@@ -131,7 +131,7 @@ export const catalogueItems: CatalogueItem[] = [
       { quantity: 12, price: 1000 },
     ],
     inStock: true,
-    image: 'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400',
+    image: 'https://images.nsplash.com/photo-1581091226033-d5c48150dbaa?w=400',
     pageNumber: 14,
   },
 
@@ -151,7 +151,7 @@ export const catalogueItems: CatalogueItem[] = [
       { quantity: 5, price: 40000 },
     ],
     inStock: true,
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
+    image: 'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
     pageNumber: 25,
   },
   {
@@ -169,7 +169,7 @@ export const catalogueItems: CatalogueItem[] = [
       { quantity: 4, price: 80000 },
     ],
     inStock: true,
-    image: 'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?w=400',
+    image: 'https://images.nsplash.com/photo-1581093588401-fbb62a02f120?w=400',
     pageNumber: 26,
   },
 
@@ -189,7 +189,7 @@ export const catalogueItems: CatalogueItem[] = [
       { quantity: 12, price: 2200 },
     ],
     inStock: true,
-    image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400',
+    image: 'https://images.nsplash.com/photo-1532094349884-543bc11b234d?w=400',
     pageNumber: 38,
   },
   {
@@ -207,7 +207,7 @@ export const catalogueItems: CatalogueItem[] = [
       { quantity: 24, price: 1400 },
     ],
     inStock: true,
-    image: 'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=400',
+    image: 'https://images.nsplash.com/photo-1581091226033-d5c48150dbaa?w=400',
     pageNumber: 42,
   },
 
@@ -227,7 +227,7 @@ export const catalogueItems: CatalogueItem[] = [
       { quantity: 50, price: 450 },
     ],
     inStock: true,
-    image: 'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=400',
+    image: 'https://images.nsplash.com/photo-1497032628192-86f99bcd76bc?w=400',
     pageNumber: 5,
   },
 ]
@@ -242,12 +242,12 @@ export interface FlipbookPage {
 export const flipbookPages: FlipbookPage[] = [
   {
     pageNumber: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=800',
+    imageUrl: 'https://images.nsplash.com/photo-1581091226033-d5c48150dbaa?w=800',
     items: catalogueItems.filter(item => item.pageNumber >= 1 && item.pageNumber <= 4),
   },
   {
     pageNumber: 2,
-    imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800',
+    imageUrl: 'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=800',
     items: catalogueItems.filter(item => item.pageNumber >= 5 && item.pageNumber <= 8),
   },
   // Add more pages as needed
