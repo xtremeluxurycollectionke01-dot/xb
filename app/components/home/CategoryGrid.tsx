@@ -173,7 +173,7 @@ const categories = [
   {
     id: 'office',
     name: 'Office',
-    image: 'https://images.unsplash.com/photo-1497215842964-222b430dc094?w=800&auto=format&fit=crop',
+    image: 'https://images.nsplash.com/photo-1497215842964-222b430dc094?w=800&auto=format&fit=crop',
     color: 'from-[#1FB84F] to-[#63DB7C]',
     items: ['Paper', 'Pens', 'Storage', 'Accessories'],
     count: 240,
@@ -181,7 +181,7 @@ const categories = [
   {
     id: 'lab-equipment',
     name: 'Lab Equipment',
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop',
+    image: 'https://images.nsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop',
     color: 'from-[#3FCC63] to-[#8EE89F]',
     items: ['Glassware', 'Instruments', 'Plasticware', 'Safety'],
     count: 180,
@@ -189,7 +189,7 @@ const categories = [
   {
     id: 'chemicals',
     name: 'Chemicals',
-    image: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b3a?w=800&auto=format&fit=crop',
+    image: 'https://images.nsplash.com/photo-1532187863486-abf9dbad1b3a?w=800&auto=format&fit=crop',
     color: 'from-[#14963F] to-[#3FCC63]',
     items: ['Acids', 'Solvents', 'Reagents', 'Indicators'],
     count: 320,
@@ -197,7 +197,7 @@ const categories = [
   {
     id: 'lab-furniture',
     name: 'Furniture',
-    image: 'https://images.unsplash.com/photo-1581277557426-befb1e49ff6a?w=800&auto=format&fit=crop',
+    image: 'https://images.nsplash.com/photo-1581277557426-befb1e49ff6a?w=800&auto=format&fit=crop',
     color: 'from-[#0E6F2F] to-[#1FB84F]',
     items: ['Workbenches', 'Cabinets', 'Fume Hoods', 'Stools'],
     count: 60,
@@ -205,7 +205,7 @@ const categories = [
   {
     id: 'safety',
     name: 'Safety',
-    image: 'https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=800&auto=format&fit=crop',
+    image: 'https://images.nsplash.com/photo-1584438784894-089d6a62b8fa?w=800&auto=format&fit=crop',
     color: 'from-[#63DB7C] to-[#B8F5C2]',
     items: ['PPE', 'Gloves', 'Goggles', 'First Aid'],
     count: 150,
@@ -213,7 +213,7 @@ const categories = [
   {
     id: 'glassware',
     name: 'Glassware',
-    image: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=800&auto=format&fit=crop',
+    image: 'https://images.nsplash.com/photo-1576086213369-97a306d36557?w=800&auto=format&fit=crop',
     color: 'from-[#1FB84F] to-[#8EE89F]',
     items: ['Beakers', 'Flasks', 'Pipettes', 'Burettes'],
     count: 200,

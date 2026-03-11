@@ -12,7 +12,7 @@ export default function AboutHero() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=1600"
+          src="https://images.unsplash.com/photo-1572884267966-02340ebc90ac?w=1200&auto=format&fit=crop"
           alt="Modern warehouse facility"
           fill
           className="object-cover"

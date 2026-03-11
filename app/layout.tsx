@@ -76,7 +76,7 @@ export default function RootLayout({
   );
 }*/
 
-import type { Metadata } from "next";
+/*import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/app/components/auth/AuthContext";
 import Navigation from "@/app/components/layout/Navigation";
@@ -116,6 +116,71 @@ export default function RootLayout({
           <Footer />
         </AuthProvider>
       </body>
+    </html>
+  );
+}*/
+
+// app/layout.tsx (update)
+/*import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import { AuthProvider } from "@/app/components/auth/AuthContext";
+import Navigation from "@/app/components/layout/Navigation";
+import Footer from "@/app/components/layout/Footer";
+import FloatingMessageButton from "@/app/components/messaging/FloatingMessageButton";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Linkchem - Scientific & Laboratory Supplies",
+  description: "Your trusted partner in laboratory equipment, chemicals, glassware, and general school supplies.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+      >
+        <AuthProvider>
+          <Navigation />
+          <main className="flex-grow pt-20">
+            {children}
+          </main>
+          <FloatingMessageButton />
+          <Footer />
+        </AuthProvider>
+      </body>
+    </html>
+  );
+}*/
+
+// app/layout.tsx (server component)
+import type { Metadata } from "next";
+import ClientLayout from "./ClientLayout"; // client wrapper
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Linkchem - Scientific & Laboratory Supplies",
+  description: "Your trusted partner in laboratory equipment, chemicals, glassware, and general school supplies.",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <ClientLayout>{children}</ClientLayout>
     </html>
   );
 }
