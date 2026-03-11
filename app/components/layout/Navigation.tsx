@@ -1124,7 +1124,7 @@ export default function Navigation() {
             onClick={() => setIsOpen(false)}
           >
             {/* Logo with glow effect */}
-            <div className="relative">
+            {/*<div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-[var(--brand-400)] to-[var(--brand-600)] rounded-full blur-lg opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
               <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-2 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-500">
                 <img
@@ -1133,28 +1133,28 @@ export default function Navigation() {
                   className="h-12 w-auto object-contain transform group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
-            </div>
+            </div>*/}
 
             {/* Text with gradient effect */}
             <div className="flex flex-col">
               <div className="flex items-baseline">
-                <span className="text-2xl font-bold bg-gradient-to-r from-[var(--brand-400)] to-[var(--brand-600)] bg-clip-text text-transparent">
+                <span className="text-3xl font-bold bg-gradient-to-r from-[var(--brand-400)] to-[var(--brand-600)] bg-clip-text text-transparent">
                   Link
                 </span>
                 {/*<span className="text-2xl font-bold text-gray-900 dark:text-white">
                   chem
                 </span>*/}
-                <span className="text-2xl font-bold text-[var(--brand-700)] dark:text-white">
+                <span className="text-3xl font-bold text-[var(--brand-700)] dark:text-white">
                   chem
                 </span>
                 
-                <span className="hidden sm:inline-block ml-2 text-xs font-medium px-2 py-0.5 bg-[var(--brand-50)] dark:bg-[var(--brand-900)] text-[var(--brand-700)] dark:text-[var(--brand-300)] rounded-full border border-[var(--brand-200)] dark:border-[var(--brand-700)]">
+                {/*<span className="hidden sm:inline-block ml-2 text-xs font-medium px-2 py-0.5 bg-[var(--brand-50)] dark:bg-[var(--brand-900)] text-[var(--brand-700)] dark:text-[var(--brand-300)] rounded-full border border-[var(--brand-200)] dark:border-[var(--brand-700)]">
                   Since 2014
-                </span>
+                </span>*/}
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400 tracking-wider">
+              {/*<span className="text-xs text-gray-500 dark:text-gray-400 tracking-wider">
                 Scientific Excellence
-              </span>
+              </span>*/}
             </div>
           </Link>
 
