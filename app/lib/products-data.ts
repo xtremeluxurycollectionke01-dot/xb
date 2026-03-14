@@ -341,7 +341,7 @@ export interface Product {
   costPrice?: number // Staff only
   reorderPoint?: number
   suppliers?: Supplier[]
-bulkPricing?: BulkPricingTier[]
+  bulkPricing?: BulkPricingTier[]
 }
 
 export interface BulkPricingTier {

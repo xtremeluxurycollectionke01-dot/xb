@@ -7,7 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "fix:schedules": "node scripts/fix-staff-schedules.js"
+    "fix:schedules": "node scripts/fix-staff-schedules.js",
+    "seed:dashboard": "node scripts/seed-dashboard.js",
+    "seed:orders": "node scripts/seed-orders.js",
+    "seed:clients": "node scripts/seed-clients.js",
+    "seed:staff": "node scripts/seed-staff.js",
+    "seed:product": "node scripts/seed-product.js",
+    "seed:document": "node scripts/seed-document.js",
+    "seed:packaging": "node scripts/seed-packaging.js",
+    "seed:timemanagement": "node scripts/seed-timemanagement.js",
+    "seed:message": "node scripts/seed-messages.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",

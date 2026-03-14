@@ -4,9 +4,14 @@ import { FiChevronDown } from 'react-icons/fi'
 
 export type SortOption = 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc' | 'rating-desc' | 'newest'
 
+/*interface ProductSortProps {
+  value: SortOption
+  onChange: (value: SortOption) => void
+}*/
 interface ProductSortProps {
   value: SortOption
   onChange: (value: SortOption) => void
+  disabled?: boolean
 }
 
 export default function ProductSort({ value, onChange }: ProductSortProps) {

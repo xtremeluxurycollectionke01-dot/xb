@@ -1221,7 +1221,7 @@ export default function Navigation() {
               >
                 <FiShoppingCart className="w-5 h-5" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[var(--brand-500)] to-[var(--brand-600)] text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center px-1 shadow-lg animate-pulse">
+                  <span className="absolute -top-1 -right-1 bg-[var(--brand-500)] text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center px-1 shadow-lg">
                     {totalItems}
                   </span>
                 )}
