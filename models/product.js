@@ -215,7 +215,7 @@ export const PricingTiers = {
     SPECIAL: 'special'
 };*/
 
-// models/product.model.js
+// models/product.js
 import mongoose from 'mongoose';
 
 // Supplier reference schema (for embedded suppliers)

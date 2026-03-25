@@ -16,7 +16,8 @@
     "seed:document": "node scripts/seed-document.js",
     "seed:packaging": "node scripts/seed-packaging.js",
     "seed:timemanagement": "node scripts/seed-timemanagement.js",
-    "seed:message": "node scripts/seed-messages.js"
+    "seed:message": "node scripts/seed-messages.js",
+    "seed:import-products": "node scripts/import-excel-products.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
@@ -32,7 +33,8 @@
     "react-dom": "19.2.3",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

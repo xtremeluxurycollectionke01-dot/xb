@@ -230,6 +230,7 @@ export default function ProductsPageClient() {
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const uniqueProducts = Array.from(new Map(products.map(p => [p.id, p])).values());
   
   const [filters, setFilters] = useState<FilterState>({
     categories: [],
@@ -464,6 +465,15 @@ export default function ProductsPageClient() {
                 isLoading={isLoadingMore}
               />
             )}
+
+            {/*{!isLoading && !error && (
+            <ProductGrid
+              products={uniqueProducts} 
+              hasMore={currentPage < totalPages}
+              onLoadMore={handleLoadMore}
+              isLoading={isLoadingMore}
+              />
+            )}*/}
           </div>
         </div>
       </Container>
