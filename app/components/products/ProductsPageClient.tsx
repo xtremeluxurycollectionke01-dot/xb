@@ -457,23 +457,23 @@ export default function ProductsPageClient() {
             )}
 
             {/* Product Grid */}
-            {!isLoading && !error && (
+            {/*{!isLoading && !error && (
               <ProductGrid
                 products={products}
                 hasMore={currentPage < totalPages}
                 onLoadMore={handleLoadMore}
                 isLoading={isLoadingMore}
               />
-            )}
+            )}*/}
 
-            {/*{!isLoading && !error && (
+            {!isLoading && !error && (
             <ProductGrid
               products={uniqueProducts} 
               hasMore={currentPage < totalPages}
               onLoadMore={handleLoadMore}
               isLoading={isLoadingMore}
               />
-            )}*/}
+            )}
           </div>
         </div>
       </Container>
