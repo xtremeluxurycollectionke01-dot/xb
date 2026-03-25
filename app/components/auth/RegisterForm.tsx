@@ -325,8 +325,9 @@ export default function RegisterForm() {
               {[
                 { value: 'INDIVIDUAL', label: 'Individual' },
                 { value: 'BUSINESS', label: 'Business' },
-                { value: 'GOVERNMENT', label: 'Government' },
-                { value: 'NGO', label: 'NGO' }
+                { value: 'PRIVATE-SCH', label: 'Private Sch' },
+                { value: 'PUPLIC-SCH', label: 'Public Sch' },
+                { value: 'OTHER', label: 'Other' }
               ].map((type) => (
                 <button
                   key={type.value}
