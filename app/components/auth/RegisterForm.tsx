@@ -226,7 +226,7 @@ export default function RegisterForm() {
           
           {/* Email */}
           <Input
-            label="Email Address *"
+            label="Email Address (Optional)"
             type="email"
             name="email"
             value={formData.email}
