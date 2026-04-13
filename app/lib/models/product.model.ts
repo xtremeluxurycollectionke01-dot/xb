@@ -38,6 +38,16 @@ export interface Product {
   discount?: number;
   createdAt: Date;
   updatedAt: Date;
+
+  // New flags for product categorization
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  isSpecialOffer?: boolean;
+  
+  // For sale badge calculation
+  saleEndDate?: Date;
+  saleStartDate?: Date;
+
 }
 
 export interface SupplierRef {
@@ -75,6 +85,9 @@ export interface FilterState {
   inStock: boolean;
   onSale: boolean;
   newArrivals: boolean;
+
+  bestSellers?: boolean;
+  specialOffers?: boolean;
 }
 
 export interface PriceRange {

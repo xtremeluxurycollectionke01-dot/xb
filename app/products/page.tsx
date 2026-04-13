@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import ProductsPageClient from "../components/products/ProductsPageClient";
 
 export const metadata: Metadata = {
-  title: "Products | LabPro Scientific Supplies",
+  title: "Products | Linkchem Supplies",
   description: "Browse our wide range of laboratory equipment, chemicals, glassware, and office supplies. Find quality products for your lab.",
 };
 

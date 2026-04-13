@@ -64,6 +64,19 @@ export interface Download {
   type?: string;
 }
 
+export interface StockHistoryEntry {
+  _id?: string;
+  quantity: number;
+  type: 'restock' | 'sale' | 'return' | 'damage' | 'adjustment';
+  oldQuantity: number;
+  newQuantity: number;
+  supplier?: string;
+  notes?: string;
+  reference?: string;
+  adjustedBy: string;
+  timestamp: Date;
+}
+
 // --------------------------
 // Product Interface
 // --------------------------
@@ -103,10 +116,18 @@ export interface IProduct {
   badge?: string;
   downloads: Download[];
   priceHistory: PriceHistoryEntry[];
+  stockHistory?: StockHistoryEntry[];
   isFeatured?: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+
+  // New flags for product categorization
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  isSpecialOffer?: boolean;
+  saleEndDate?: Date;
+  saleStartDate?: Date;
 
   // Virtuals
   retailMargin?: number;
@@ -158,6 +179,19 @@ const downloadSchema = new Schema<Download>({
   type: { type: String, default: 'pdf' }
 }, { _id: false });
 
+const stockHistoryEntrySchema = new Schema<StockHistoryEntry>({
+  quantity: { type: Number, required: true },
+  type: { type: String, enum: ['restock', 'sale', 'return', 'damage', 'adjustment'], required: true },
+  oldQuantity: { type: Number, required: true },
+  newQuantity: { type: Number, required: true },
+  supplier: { type: String },
+  notes: { type: String },
+  reference: { type: String },
+  adjustedBy: { type: String, required: true, default: 'system' },
+  timestamp: { type: Date, default: Date.now }
+}, { _id: true });
+
+
 // --------------------------
 // Product Schema
 // --------------------------
@@ -207,8 +241,15 @@ const productSchema = new Schema<IProduct, Model<IProduct>>({
   tags: { type: [String], default: [] },
   badge: { type: String, default: '' },
   downloads: { type: [downloadSchema], default: [] },
+  stockHistory: { type: [stockHistoryEntrySchema], default: [] },
 
   priceHistory: { type: [priceHistoryEntrySchema], default: [] },
+
+  isNewArrival: { type: Boolean, default: false },
+  isBestSeller: { type: Boolean, default: false },
+  isSpecialOffer: { type: Boolean, default: false },
+  saleEndDate: { type: Date },
+  saleStartDate: { type: Date },
 
   isFeatured: { type: Boolean, default: false },
   isActive: { type: Boolean, required: true, default: true, index: true },

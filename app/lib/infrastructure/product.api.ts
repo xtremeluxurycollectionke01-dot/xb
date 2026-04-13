@@ -21,6 +21,10 @@ export interface ProductQueryParams {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   ids?: string;
+
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  isSpecialOffer?: boolean;
 }
 
 class ProductAPI {
@@ -93,6 +97,30 @@ class ProductAPI {
       return response.data;
     } catch (error) {
       console.error('Error fetching products by ids:', error);
+      return [];
+    }
+  }
+
+  async getFeaturedByType(type: 'new' | 'best' | 'sale', limit: number = 6): Promise<Product[]> {
+    try {
+      let params: ProductQueryParams = { limit, isActive: true };
+      
+      switch (type) {
+        case 'new':
+          params = { ...params, isNewArrival: true, sortBy: 'createdAt', sortOrder: 'desc' };
+          break;
+        case 'best':
+          params = { ...params, isBestSeller: true, sortBy: 'reviewCount', sortOrder: 'desc' };
+          break;
+        case 'sale':
+          params = { ...params, isSpecialOffer: true, sortBy: 'discount', sortOrder: 'desc' };
+          break;
+      }
+      
+      const response = await this.getProducts(params);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching featured ${type} products:`, error);
       return [];
     }
   }
