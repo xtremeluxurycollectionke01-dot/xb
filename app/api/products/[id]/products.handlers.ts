@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db/mongoose';
 import { Product } from '@/models/Products';
 import { Types } from 'mongoose';
+import { StockStatus } from '@/models/Products';
+import { PricingTier } from '@/models/Products';
+
 
 /** GET /api/products/:id - Fetch a single product by ID */
 export async function GET(
@@ -217,7 +220,7 @@ export async function PUT(
       ? product.reorderLevel 
       : (product.reorderPoint ?? 0);
     
-    if (product.stockQuantity === 0) {
+    /*if (product.stockQuantity === 0) {
       product.stockStatus = 'out-of-stock';
       product.inStock = false;
     } else if (product.stockQuantity <= reorderThreshold) {
@@ -226,12 +229,23 @@ export async function PUT(
     } else {
       product.stockStatus = 'in-stock';
       product.inStock = true;
+    }*/
+
+    if (product.stockQuantity === 0) {
+      product.stockStatus = StockStatus.OUT_OF_STOCK;
+      product.inStock = false;
+    } else if (product.stockQuantity <= (reorderThreshold ?? 0)) {
+      product.stockStatus = StockStatus.LOW_STOCK;
+      product.inStock = true;
+    } else {
+      product.stockStatus = StockStatus.IN_STOCK;
+      product.inStock = true;
     }
 
     await product.save();
 
     // If price was updated, add to price history
-    if (body.pricing && body.priceChangeReason) {
+    /*if (body.pricing && body.priceChangeReason) {
       const priceHistoryEntry = {
         _id: `ph_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         oldPrice: body.oldPrice,
@@ -244,7 +258,28 @@ export async function PUT(
       
       product.priceHistory.push(priceHistoryEntry);
       await product.save();
-    }
+    }*/
+   if (body.pricing && body.priceChangeReason) {
+    // Map string keys to PricingTier enum values
+    const tierKey = Object.keys(body.pricing)[0] as keyof typeof PricingTier;
+    const tierMap: Record<string, PricingTier> = {
+      'retail': PricingTier.RETAIL,
+      'wholesale': PricingTier.WHOLESALE,
+      'special': PricingTier.SPECIAL
+    };
+    
+    const priceHistoryEntry = {
+      _id: `ph_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      oldPrice: body.oldPrice,
+      newPrice: body.pricing[tierKey],
+      tier: tierMap[tierKey] || PricingTier.RETAIL, // Proper enum value
+      changedBy: body.changedBy || 'system',
+      changedAt: new Date(),
+      reason: body.priceChangeReason
+    };
+    
+    product.priceHistory.push(priceHistoryEntry);
+  }
 
     return NextResponse.json({ 
       success: true, 
