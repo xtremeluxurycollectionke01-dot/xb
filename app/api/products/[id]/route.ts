@@ -9,7 +9,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000'
 ];
 
-function getCorsHeaders(origin: string | null) {
+/*function getCorsHeaders(origin: string | null) {
   const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) 
     ? origin 
     : ALLOWED_ORIGINS[0];
@@ -17,11 +17,27 @@ function getCorsHeaders(origin: string | null) {
   return {
     'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-app-type',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': '86400'
+  };
+}*/
+
+function getCorsHeaders(origin: string | null) {
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) 
+    ? origin 
+    : ALLOWED_ORIGINS[0];
+
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 
+      'Content-Type, Authorization, X-App-Type, X-Device-Fingerprint',
     'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Max-Age': '86400'
   };
 }
+
 
 // Wrapper function to add CORS headers to responses
 async function withCORS(handler: Function, request: NextRequest, context: any) {

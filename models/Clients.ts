@@ -13,6 +13,8 @@
 
 import mongoose, { Schema, Document, Types, Model } from 'mongoose';
 import { TimeRecord } from './Time';
+import { FinancialDocument } from './Documents';
+import './Staff'; 
 // ----------------------------------------------------------------------------
 // TYPE DEFINITIONS
 // ----------------------------------------------------------------------------
@@ -1330,7 +1332,8 @@ ClientSchema.statics.getTopClients = async function(
   }
   
   // Aggregate from documents
-  const FinancialDocument = mongoose.model('FinancialDocument');
+  //const FinancialDocument = mongoose.model('FinancialDocument');
+
   
   const results = await FinancialDocument.aggregate([
     {

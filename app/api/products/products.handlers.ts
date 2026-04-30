@@ -99,6 +99,9 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') === 'asc' ? 1 : -1;
     const sort: any = {};
 
+    console.log('Incoming params:', request.nextUrl.search);
+    console.log('PAGE:', page, 'LIMIT:', limit, 'SKIP:', skip);
+
     switch (sortField) {
       case 'retailMargin':
         sort['$expr'] = { $divide: [{ $subtract: ['$pricing.retail', '$costPrice'] }, '$costPrice'] };

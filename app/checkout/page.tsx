@@ -1393,7 +1393,7 @@ export default function CheckoutPage() {
     }
   }
   
-  const handlePlaceOrder = async () => {
+  /*const handlePlaceOrder = async () => {
     setIsProcessing(true)
     
     // Simulate order processing
@@ -1402,7 +1402,119 @@ export default function CheckoutPage() {
     setIsProcessing(false)
     setOrderComplete(true)
     clearCart()
+  }*/
+
+    // app/checkout/page.tsx - Updated handlePlaceOrder function
+const handlePlaceOrder = async () => {
+  setIsProcessing(true);
+  
+  try {
+    // Get auth token if available
+    const token = localStorage.getItem('auth_token');
+    
+    // Prepare order data
+    const orderData = {
+      destination: {
+        name: selectedAddress ? `${selectedAddress.firstName} ${selectedAddress.lastName}` : 'Guest',
+        address: selectedAddress ? 
+          `${selectedAddress.address}${selectedAddress.apartment ? `, ${selectedAddress.apartment}` : ''}, ${selectedAddress.city}, ${selectedAddress.state} ${selectedAddress.zipCode}` :
+          '',
+        contactName: selectedAddress ? `${selectedAddress.firstName} ${selectedAddress.lastName}` : '',
+        contactPhone: selectedAddress?.phone || phone,
+        instructions: orderNotes
+      },
+      items: items.map(item => ({
+        productId: item.id,
+        sku: item.sku || `SKU-${item.id}`,
+        name: item.name,
+        quantity: item.quantity,
+        unitPrice: item.price
+      })),
+      taxRate: 16,
+      deposit: 0,
+      payments: selectedPayment === 'mpesa' && mpesaPhone ? [{
+        method: 'mpesa',
+        reference: `MPESA-${Date.now()}`,
+        amount: finalTotal,
+        paidBy: mpesaPhone
+      }] : selectedPayment === 'card' ? [{
+        method: 'credit',
+        reference: `CARD-${Date.now()}`,
+        amount: finalTotal
+      }] : [],
+      requestedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      orderNotes: orderNotes,
+      promoCode: promoApplied ? promoCode : undefined,
+      promoDiscount: promoDiscount
+    };
+    
+    // Submit order to API
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+      body: JSON.stringify(orderData)
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.error?.message || 'Failed to place order');
+    }
+    
+    // If order created successfully, confirm it (if payment collected)
+    if (result.success && result.data.order) {
+      const { order, requiresPayment, paymentReference } = result.data;
+      
+      // If payment was made at checkout, confirm the order
+      if (!requiresPayment || orderData.payments.length > 0) {
+        const confirmResponse = await fetch(`/api/orders/${order.id}/confirm`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+          },
+          body: JSON.stringify({
+            paymentReference: paymentReference,
+            confirmedBy: null // Will be inferred from auth
+          })
+        });
+        
+        if (!confirmResponse.ok) {
+          console.warn('Order created but confirmation failed');
+        }
+      }
+      
+      setOrderNumber(order.orderNumber);
+      setOrderComplete(true);
+      clearCart();
+      
+      // Track conversion (optional)
+      if (typeof window.gtag !== 'undefined') {
+        window.gtag('event', 'purchase', {
+          transaction_id: order.orderNumber,
+          value: order.total,
+          currency: 'KES',
+          items: items.map(item => ({
+            item_name: item.name,
+            item_id: item.id,
+            price: item.price,
+            quantity: item.quantity
+          }))
+        });
+      }
+    }
+    
+  } catch (error: any) {
+    console.error('Order placement error:', error);
+    // Show error to user
+    alert(error.message || 'Failed to place order. Please try again.');
+  } finally {
+    setIsProcessing(false);
   }
+};
   
   const steps = [
     { id: 'information', label: 'Information', icon: FiUser },

@@ -730,7 +730,7 @@ export const OPTIONS = withCORS(
 
 
 // app/api/auth/login/route.ts
-import { NextRequest } from 'next/server';
+/*import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/db/mongoose';
 import { User, SecurityLog } from '@/models/Users';
 import { successResponse, errors } from '@/lib/utils/api-response';
@@ -740,7 +740,7 @@ import crypto from 'crypto';
 import mongoose from 'mongoose';
 import '@/models/Staff';
 
-/** Helper to extract client IP */
+/** Helper to extract client IP *
 function getClientIP(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) return forwarded.split(',')[0].trim();
@@ -753,14 +753,14 @@ function getClientIP(request: NextRequest): string {
   return 'unknown';
 }
 
-/** Generate device fingerprint */
+/** Generate device fingerprint *
 function generateDeviceFingerprint(request: NextRequest): string {
   const userAgent = request.headers.get('user-agent') || 'unknown';
   const ip = getClientIP(request);
   return crypto.createHash('sha256').update(`${userAgent}:${ip}`).digest('hex').substring(0, 16);
 }
 
-/** Parse device info from user agent */
+/** Parse device info from user agent *
 function parseDeviceInfo(userAgent: string): string {
   if (!userAgent) return 'Unknown Device';
   if (userAgent.includes('Mobile')) return 'Mobile Browser';
@@ -770,12 +770,12 @@ function parseDeviceInfo(userAgent: string): string {
   return 'Desktop Browser';
 }
 
-/** Generate temporary token for 2FA */
+/** Generate temporary token for 2FA *
 function generateTemp2FAToken(userId: string): string {
   return Buffer.from(`${userId}:${Date.now()}`).toString('base64');
 }
 
-/** Determine login context based on account type and device */
+/** Determine login context based on account type and device *
 function determineLoginContext(user: any, deviceType: string): 'CLIENT_PORTAL' | 'STAFF_DESKTOP' | 'ADMIN_PANEL' {
   if (user.accountType === 'CLIENT' && deviceType.includes('Mobile')) {
     return 'CLIENT_PORTAL';
@@ -787,7 +787,7 @@ function determineLoginContext(user: any, deviceType: string): 'CLIENT_PORTAL' |
   return 'STAFF_DESKTOP'; // default
 }
 
-/** Actual login handler */
+/** Actual login handler *
 async function loginHandler(request: NextRequest) {
   try {
     await dbConnect();
@@ -1118,9 +1118,359 @@ async function loginHandler(request: NextRequest) {
   }
 }
 
-/** Export API route wrapped in CORS */
+/** Export API route wrapped in CORS *
 export const POST = withCORS(loginHandler, 'http://127.0.0.1:5500 ');
 export const OPTIONS = withCORS(
   async () => new Response(null, { status: 204 }),
   'http://127.0.0.1:5500 '
-);
+);*/
+
+
+
+// app/api/auth/login/route.ts
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/db/mongoose';
+import { User, SecurityLog } from '@/models/Users';
+import { successResponse, errors } from '@/lib/utils/api-response';
+import { generateTokens } from '@/lib/utils/jwt';
+import { withCORS } from '@/lib/cors/cors';
+import crypto from 'crypto';
+import mongoose from 'mongoose';
+import '@/models/Staff';
+
+/** Helper to extract client IP */
+function getClientIP(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0].trim();
+  const realIP = request.headers.get('x-real-ip');
+  if (realIP) return realIP;
+  const cfIP = request.headers.get('cf-connecting-ip');
+  if (cfIP) return cfIP;
+  return 'unknown';
+}
+
+/** Generate device fingerprint */
+function generateDeviceFingerprint(request: NextRequest): string {
+  const userAgent = request.headers.get('user-agent') || 'unknown';
+  const appType = request.headers.get('x-app-type') || 'web';
+  const ip = getClientIP(request);
+  return crypto.createHash('sha256').update(`${userAgent}:${ip}:${appType}`).digest('hex').substring(0, 16);
+}
+
+/** Parse device info from user agent */
+function parseDeviceInfo(userAgent: string, appType: string): string {
+  if (appType === 'electron') return 'Electron Desktop App';
+  if (appType === 'capacitor') return 'Mobile App';
+  if (!userAgent) return 'Unknown Device';
+  if (userAgent.includes('Electron')) return 'Electron Desktop';
+  if (userAgent.includes('Mobile')) return 'Mobile Browser';
+  if (userAgent.includes('Chrome')) return 'Chrome Desktop';
+  if (userAgent.includes('Firefox')) return 'Firefox Desktop';
+  if (userAgent.includes('Safari')) return 'Safari Desktop';
+  return 'Desktop Browser';
+}
+
+/** Determine login context based on app type and account */
+function determineLoginContext(user: any, appType: string, deviceType: string): 'CLIENT_PORTAL' | 'STAFF_DESKTOP' | 'ADMIN_PANEL' {
+  if (appType === 'electron') {
+    return user.role === 'ADMIN' ? 'ADMIN_PANEL' : 'STAFF_DESKTOP';
+  }
+  if (user.accountType === 'CLIENT' && deviceType.includes('Mobile')) {
+    return 'CLIENT_PORTAL';
+  } else if (user.role === 'ADMIN') {
+    return 'ADMIN_PANEL';
+  } else if (['STAFF', 'BOTH'].includes(user.accountType)) {
+    return 'STAFF_DESKTOP';
+  }
+  return 'STAFF_DESKTOP';
+}
+
+/** Actual login handler */
+async function loginHandler(request: NextRequest) {
+  try {
+    await dbConnect();
+    await import('@/models/Staff');
+    
+    const body = await request.json();
+    console.log('[LOGIN] Request body:', body);
+    console.log('[LOGIN] Headers:', {
+      appType: request.headers.get('x-app-type'),
+      userAgent: request.headers.get('user-agent'),
+      origin: request.headers.get('origin')
+    });
+    
+    // Support multiple field name variations for desktop app compatibility
+    const identifier = body.identifier || body.username || body.email || body.phone || body.employeeId;
+    const password = body.password;
+    const rememberMe = body.rememberMe || false;
+    const deviceType = body.deviceType || 'Desktop';
+    const appType = request.headers.get('x-app-type') || body.appType || 'web';
+
+    if (!identifier || !password) {
+      return errors.validationError('Identifier and password are required');
+    }
+
+    const clientIP = getClientIP(request);
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const deviceInfo = parseDeviceInfo(userAgent, appType);
+    const deviceFingerprint = generateDeviceFingerprint(request);
+
+    // Find user by employeeId, email, or phone (supports all login methods)
+    const user = await User.findOne({ 
+      $or: [
+        { employeeId: identifier.toUpperCase().trim() },
+        { email: identifier.toLowerCase().trim() },
+        { phone: identifier }
+      ],
+      deletedAt: { $exists: false }
+    }).populate({
+      path: 'staffProfile',
+      model: 'Staff',
+      select: 'firstName lastName employeeId role permissions department'
+    }).populate({
+      path: 'clientProfile',
+      model: 'Client',
+      select: 'name clientNumber category'
+    });
+
+    if (!user) {
+      await SecurityLog.create({
+        user: new mongoose.Types.ObjectId(),
+        action: 'LOGIN_FAILED',
+        severity: 'WARNING',
+        details: {
+          ipAddress: clientIP,
+          device: deviceInfo,
+          userAgent: userAgent,
+          success: false,
+          reason: 'invalid_credentials',
+          metadata: { attemptedIdentifier: identifier, appType }
+        }
+      });
+      return errors.unauthorized();
+    }
+
+    // Check account status
+    if (user.status === 'SUSPENDED') {
+      await user.recordLoginAttempt(false, {
+        ipAddress: clientIP,
+        device: deviceInfo,
+        userAgent: userAgent,
+        method: 'PASSWORD',
+        reason: 'account_suspended'
+      });
+      return errors.forbidden('Account is suspended. Contact administrator.');
+    }
+
+    if (user.status === 'LOCKED' || user.isLocked) {
+      if (user.security?.lockedUntil && new Date() < user.security.lockedUntil) {
+        const minutesLeft = Math.ceil((user.security.lockedUntil.getTime() - Date.now()) / 60000);
+        return errors.forbidden(`Account is locked. Try again in ${minutesLeft} minutes.`);
+      } else {
+        user.unlockAccount();
+        await user.save();
+      }
+    }
+
+    if (user.status === 'PENDING') {
+      await user.recordLoginAttempt(false, {
+        ipAddress: clientIP,
+        device: deviceInfo,
+        userAgent: userAgent,
+        method: 'PASSWORD',
+        reason: 'account_pending_activation'
+      });
+      return errors.forbidden('Account pending activation. Please check your email for invitation link.');
+    }
+
+    // Verify password
+    const isValid = await user.comparePassword(password);
+    
+    if (!isValid) {
+      await user.recordLoginAttempt(false, {
+        ipAddress: clientIP,
+        device: deviceInfo,
+        userAgent: userAgent,
+        method: 'PASSWORD',
+        reason: 'wrong_password'
+      });
+
+      if (user.status === 'LOCKED') {
+        await SecurityLog.create({
+          user: user._id,
+          action: 'ACCOUNT_LOCKED',
+          severity: 'HIGH',
+          details: {
+            ipAddress: clientIP,
+            device: deviceInfo,
+            userAgent: userAgent,
+            success: false,
+            reason: 'Too many failed login attempts',
+            metadata: { failedAttempts: user.security?.failedLoginAttempts || 5 }
+          }
+        });
+        return errors.forbidden('Account locked due to too many failed attempts. Try again in 30 minutes.');
+      }
+
+      return errors.unauthorized();
+    }
+
+    // Determine login context
+    const context = determineLoginContext(user, appType, deviceType);
+
+    // Check if user has appropriate profile for context
+    if (context === 'CLIENT_PORTAL' && !user.isClient) {
+      return errors.forbidden('No client portal access available for this account');
+    }
+    if (context === 'STAFF_DESKTOP' && !user.isStaff && user.role !== 'ADMIN') {
+      return errors.forbidden('No staff access available for this account');
+    }
+
+    // 2FA check
+    if (user.security?.twoFactorEnabled) {
+      await SecurityLog.create({
+        user: user._id,
+        action: 'LOGIN',
+        severity: 'INFO',
+        details: {
+          ipAddress: clientIP,
+          device: deviceInfo,
+          userAgent: userAgent,
+          success: true,
+          reason: '2fa_required'
+        }
+      });
+
+      return successResponse({
+        requires2FA: true,
+        tempToken: Buffer.from(`${user._id}:${Date.now()}`).toString('base64'),
+        message: 'Two-factor authentication required'
+      });
+    }
+
+    // Create session
+    const session = await user.createSession({
+      device: deviceInfo,
+      ipAddress: clientIP,
+      userAgent: userAgent,
+      fingerprint: deviceFingerprint,
+      isTrusted: rememberMe
+    }, context);
+
+    // Record successful login
+    await user.recordLoginAttempt(true, {
+      ipAddress: clientIP,
+      device: deviceInfo,
+      userAgent: userAgent,
+      method: 'PASSWORD'
+    });
+
+    // Log security event
+    await SecurityLog.create({
+      user: user._id,
+      action: 'LOGIN',
+      severity: 'INFO',
+      details: {
+        ipAddress: clientIP,
+        device: deviceInfo,
+        userAgent: userAgent,
+        success: true,
+        metadata: {
+          sessionId: session.token,
+          trustedDevice: rememberMe,
+          role: user.role,
+          accountType: user.accountType,
+          context,
+          appType
+        }
+      },
+      sessionId: session.token
+    });
+
+    // Get user profile
+    const userProfile = user.getPublicProfile();
+
+    // Prepare staff data if exists
+    const staffData = user.staffProfile ? {
+      id: user.staffProfile._id,
+      firstName: (user.staffProfile as any).firstName,
+      lastName: (user.staffProfile as any).lastName,
+      employeeId: (user.staffProfile as any).employeeId,
+      role: (user.staffProfile as any).role,
+      department: (user.staffProfile as any).department
+    } : null;
+
+    // Prepare client data if exists
+    const clientData = user.clientProfile ? {
+      id: user.clientProfile._id,
+      name: (user.clientProfile as any).name,
+      clientNumber: (user.clientProfile as any).clientNumber,
+      category: (user.clientProfile as any).category
+    } : null;
+
+    // Generate JWT tokens
+    const tokens = generateTokens({
+      userId: user._id.toString(),
+      staffId: user.staffProfile?._id?.toString(),
+      clientId: user.clientProfile?._id?.toString(),
+      employeeId: user.employeeId,
+      email: user.email,
+      role: user.role,
+      roleLevel: user.roleLevel,
+      accountType: user.accountType,
+      sessionId: session.token
+    });
+
+    // Return response (compatible with both web and desktop app)
+    const responseData = {
+      user: {
+        ...userProfile,
+        staff: staffData,
+        client: clientData,
+        isClient: user.isClient,
+        isStaff: user.isStaff
+      },
+      tokens: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresIn: 28800
+      },
+      session: {
+        id: session.token,
+        token: tokens.accessToken, // For desktop app compatibility
+        refreshToken: tokens.refreshToken,
+        device: session.device,
+        startedAt: session.startedAt,
+        context: session.context,
+        isTrusted: session.isTrusted,
+        expiresAt: session.expiresAt
+      },
+      permissions: {
+        canAccessStaff: user.isStaff,
+        canAccessClientPortal: user.isClient,
+        role: user.role,
+        accountType: user.accountType
+      }
+    };
+
+    // Check if password change required
+    if (user.security?.mustChangePassword || user.isPasswordExpired) {
+      return successResponse({
+        ...responseData,
+        mustChangePassword: true,
+        message: 'Password expired. Please change your password.',
+        daysToExpiry: user.daysToPasswordExpiry
+      });
+    }
+
+    return successResponse(responseData);
+
+  } catch (error) {
+    console.error('[LOGIN] Error:', error);
+    return errors.serverError();
+  }
+}
+
+// Export with CORS
+export const POST = withCORS(loginHandler);
+export const OPTIONS = withCORS(async () => new Response(null, { status: 204 }));

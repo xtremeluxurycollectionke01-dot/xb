@@ -296,7 +296,7 @@ export default function NewsUpdates() {
               </div>
 
               <div className="p-6">
-                <div className="flex items-center text-sm text-[var(--card-border)] mb-3">
+                <div className="flex items-center text-sm text-[var(--dark-text)] mb-3">
                   <FiCalendar className="w-4 h-4 mr-2 flex-shrink-0" />
                   {new Date(item.date).toLocaleDateString('en-US', {
                     month: 'long',
@@ -309,7 +309,7 @@ export default function NewsUpdates() {
                   {item.title}
                 </h3>
 
-                <p className="text-[var(--card-border)] dark:text-gray-400 mb-4">
+                <p className="text-[var(--dark-text)] dark:text-gray-400 mb-4">
                   {item.excerpt}
                 </p>
 

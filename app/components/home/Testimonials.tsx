@@ -137,7 +137,7 @@ const testimonials = [
     id: 1,
     name: 'Dr. Sarah Johnson',
     role: 'Lab Director, Nairobi University',
-    content: 'LabPro has been our trusted supplier for over 5 years. Their equipment quality and after-sales support are exceptional.',
+    content: 'Linkchem has been our trusted supplier for over 5 years. Their equipment quality and after-sales support are exceptional.',
     rating: 5,
     image: 'https://images.nsplash.com/photo-1494790108777-385ef6eebf7b?w=200',
   },
@@ -229,7 +229,7 @@ export default function Testimonials() {
                   <Avatar src={testimonial.image} alt={testimonial.name} />
                   <div className="ml-4">
                     <h4 className="font-semibold text-[var(--dark-text)]">{testimonial.name}</h4>
-                    <p className="text-sm text-[var(--card-border)]">{testimonial.role}</p>
+                    <p className="text-sm text-[var(--dark-text)]">{testimonial.role}</p>
                   </div>
                 </div>
 
