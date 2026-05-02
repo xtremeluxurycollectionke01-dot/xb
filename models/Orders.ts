@@ -104,6 +104,7 @@ export interface IOrderMessage {
  * Payment tracking
  */
 export interface IPaymentInfo {
+  status: string;
   method: 'cash' | 'mpesa' | 'bank_transfer' | 'cheque' | 'credit';
   reference?: string;          // Transaction ID
   amount: number;
@@ -117,6 +118,7 @@ export interface IPaymentInfo {
  * The central transaction record that drives downstream workflows
  */
 export interface IOrder extends Document {
+  addSystemMessage?: (message: string) => void;
   recalculateTotals(): void;
   // --- Identity ---
   orderNumber: string;          // Human-readable: ORD-2024-000001

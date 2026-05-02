@@ -121,7 +121,10 @@ export async function POST(
       );
       if (existingPayment) {
         existingPayment.status = 'CONFIRMED';
-        existingPayment.verifiedBy = confirmedBy ? new Types.ObjectId(confirmedBy) : null;
+        //existingPayment.verifiedBy = confirmedBy ? new Types.ObjectId(confirmedBy) : null;
+        existingPayment.verifiedBy = confirmedBy
+        ? new Types.ObjectId(confirmedBy)
+        : undefined;
         existingPayment.paidAt = new Date();
       }
     }
@@ -162,5 +165,4 @@ export async function POST(
         message: error instanceof Error ? error.message : 'Failed to confirm order'
       }
     }, { status: 500 });
-  }
-}
+  }}
