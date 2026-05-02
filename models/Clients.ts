@@ -207,6 +207,7 @@ export interface IClientTag {
  * Client document interface
  */
 export interface IClient extends Document {
+  addOrder?: (orderId: Types.ObjectId) => Promise<void>;
   // --- Identity ---
   clientType: ClientType;
   clientNumber: string;           // C-000001 (human-readable)
