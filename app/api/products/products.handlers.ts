@@ -132,6 +132,7 @@ export async function GET(request: NextRequest) {
       category: p.category,
       categorySlug: p.categorySlug,
       price: p.price,
+      pricing: p.pricing, 
       originalPrice: p.originalPrice ?? 0,
       stockStatus: p.stockStatus,
       stockQuantity: p.stockQuantity,
