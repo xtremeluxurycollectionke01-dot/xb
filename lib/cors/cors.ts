@@ -318,7 +318,12 @@ export function corsHeaders(origin: string = '', options?: CORSOptions) {
 // lib/cors.ts
 import { NextRequest, NextResponse } from 'next/server';
 
-type Handler = (req: NextRequest) => Promise<Response> | Response;
+//type Handler = (req: NextRequest) => Promise<Response> | Response;
+type Handler = (
+  req: NextRequest,
+  context?: any
+) => Promise<Response> | Response;
+
 
 interface CORSOptions {
   allowedOrigins?: string[];
