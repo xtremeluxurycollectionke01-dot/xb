@@ -1,5 +1,5 @@
 // models/product.model.ts
-import mongoose, { Document, Schema, Model, Types } from 'mongoose';
+/*import mongoose, { Document, Schema, Model, Types } from 'mongoose';
 
 // --------------------------
 // Enums
@@ -367,11 +367,11 @@ export const determineUrgency = (
 // --------------------------
 // Export Model
 // --------------------------
-export const Product: Model<IProduct> = mongoose.model<IProduct>('Product', productSchema);
+export const Product: Model<IProduct> = mongoose.model<IProduct>('Product', productSchema);*/
 
 
 // models/product.model.ts
-/*import mongoose, { Document, Schema, Model, Types } from 'mongoose';
+import mongoose, { Document, Schema, Model, Types } from 'mongoose';
 
 // --------------------------
 // Enums
@@ -644,7 +644,7 @@ const productSchema = new Schema<IProduct>({
 /**
  * Get price for specific pricing tier
  */
-/*productSchema.methods.getPriceForTier = function(tier: PricingTier | string): number {
+productSchema.methods.getPriceForTier = function(tier: PricingTier | string): number {
   const pricingMap = {
     [PricingTier.RETAIL]: this.pricing.retail,
     [PricingTier.WHOLESALE]: this.pricing.wholesale,
@@ -658,7 +658,7 @@ const productSchema = new Schema<IProduct>({
 /**
  * Reserve stock from available quantity
  */
-/*productSchema.methods.reserveStock = async function(quantity: number): Promise<boolean> {
+productSchema.methods.reserveStock = async function(quantity: number): Promise<boolean> {
   if (this.stockQuantity >= quantity) {
     this.stockQuantity -= quantity;
     this.stock = this.stockQuantity;
@@ -697,7 +697,7 @@ const productSchema = new Schema<IProduct>({
 /**
  * Release reserved stock back to inventory
  */
-/*productSchema.methods.releaseStock = async function(quantity: number): Promise<boolean> {
+productSchema.methods.releaseStock = async function(quantity: number): Promise<boolean> {
   this.stockQuantity += quantity;
   this.stock = this.stockQuantity;
   
@@ -838,4 +838,4 @@ export const determineUrgency = (
 // --------------------------
 // Export Model
 // --------------------------
-export const Product: Model<IProduct> = mongoose.model<IProduct>('Product', productSchema);*/
+export const Product: Model<IProduct> = mongoose.model<IProduct>('Product', productSchema);
