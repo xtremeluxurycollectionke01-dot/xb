@@ -11,7 +11,7 @@
 //   - Messages thread links to Messaging module
 // ============================================================================
 
-import mongoose, { Schema, Document, Types, Model } from 'mongoose';
+/*import mongoose, { Schema, Document, Types, Model } from 'mongoose';
 import { IProduct } from './Products'; // Import from previous model
 
 // ----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ import { IProduct } from './Products'; // Import from previous model
  *                    ↓
  *              CANCELLED (terminal)
  */
-export type OrderStatus = 
+/*export type OrderStatus = 
   | 'DRAFT'       // Initial creation, editable
   | 'CONFIRMED'   // Locked, stock reserved, ready for packaging
   | 'PACKING'     // In packaging workflow
@@ -38,7 +38,7 @@ export type OrderStatus =
  * Each item must be physically scanned and photographed
  * This is the "wrong items" prevention mechanism
  */
-export interface IItemVerification {
+/*export interface IItemVerification {
   scanned: boolean;           // Barcode/QR scan confirmed
   scannedAt?: Date;          // When verification occurred
   scannedBy?: Types.ObjectId; // Staff member who verified
@@ -50,7 +50,7 @@ export interface IItemVerification {
  * Order line item with immutable snapshots
  * Prevents price changes and product edits after order creation
  */
-export interface IOrderItem {
+/*export interface IOrderItem {
   product: Types.ObjectId;    // Reference to Product (for analytics)
   sku: string;               // Snapshot - never changes even if SKU updated
   name: string;              // Snapshot of product name at order time
@@ -72,7 +72,7 @@ export interface IOrderItem {
  * Delivery destination snapshot
  * Prevents "wrong destination" errors by capturing exact details
  */
-export interface IDestination {
+/*export interface IDestination {
   deliveryPointId: Types.ObjectId;  // Reference to DeliveryPoint collection
   name: string;                     // Snapshot: "Main Office", "Warehouse B"
   address: string;                  // Full address at time of order
@@ -89,7 +89,7 @@ export interface IDestination {
  * Order message/communication thread
  * Embedded to keep all order context in one document
  */
-export interface IOrderMessage {
+/*export interface IOrderMessage {
   _id: Types.ObjectId;
   from: Types.ObjectId;        // Staff member or System
   fromModel: 'Staff' | 'System' | 'Client'; // Who sent it
@@ -103,7 +103,7 @@ export interface IOrderMessage {
 /**
  * Payment tracking
  */
-export interface IPaymentInfo {
+/*export interface IPaymentInfo {
   status: string;
   method: 'cash' | 'mpesa' | 'bank_transfer' | 'cheque' | 'credit';
   reference?: string;          // Transaction ID
@@ -117,7 +117,7 @@ export interface IPaymentInfo {
  * Order document interface
  * The central transaction record that drives downstream workflows
  */
-export interface IOrder extends Document {
+/*export interface IOrder extends Document {
   addSystemMessage?: (message: string) => void;
   recalculateTotals(): void;
   // --- Identity ---
@@ -537,7 +537,7 @@ OrderSchema.index({ total: -1, approvedBy: 1 });
 /**
  * Check if all items are verified (ready for delivery)
  */
-OrderSchema.virtual('allItemsVerified').get(function(this: IOrder) {
+/*OrderSchema.virtual('allItemsVerified').get(function(this: IOrder) {
   if (this.items.length === 0) return false;
   return this.items.every(item => item.verified.scanned);
 });
@@ -545,7 +545,7 @@ OrderSchema.virtual('allItemsVerified').get(function(this: IOrder) {
 /**
  * Count of verified vs total items
  */
-OrderSchema.virtual('verificationProgress').get(function(this: IOrder) {
+/*OrderSchema.virtual('verificationProgress').get(function(this: IOrder) {
   const verified = this.items.filter(i => i.verified.scanned).length;
   return {
     verified,
@@ -557,7 +557,7 @@ OrderSchema.virtual('verificationProgress').get(function(this: IOrder) {
 /**
  * Is this a high-value order requiring approval?
  */
-OrderSchema.virtual('requiresApproval').get(function(this: IOrder) {
+/*OrderSchema.virtual('requiresApproval').get(function(this: IOrder) {
   const HIGH_VALUE_THRESHOLD = 100000; // Configurable
   return this.total >= HIGH_VALUE_THRESHOLD && !this.approvedBy;
 });
@@ -565,7 +565,7 @@ OrderSchema.virtual('requiresApproval').get(function(this: IOrder) {
 /**
  * Days until promised delivery
  */
-OrderSchema.virtual('daysUntilDelivery').get(function(this: IOrder) {
+/*OrderSchema.virtual('daysUntilDelivery').get(function(this: IOrder) {
   if (!this.promisedDeliveryDate) return null;
   const diff = this.promisedDeliveryDate.getTime() - Date.now();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
@@ -579,7 +579,7 @@ OrderSchema.virtual('daysUntilDelivery').get(function(this: IOrder) {
  * Calculate financial totals from items
  * Called automatically before save
  */
-OrderSchema.methods.recalculateTotals = function(): void {
+/*OrderSchema.methods.recalculateTotals = function(): void {
   this.subtotal = this.items.reduce((sum: any, item: { total: any; }) => sum + item.total, 0);
   this.tax = Math.round(this.subtotal * (this.taxRate / 100) * 100) / 100;
   this.total = this.subtotal + this.tax;
@@ -590,7 +590,7 @@ OrderSchema.methods.recalculateTotals = function(): void {
  * Add item to order (only allowed in DRAFT status)
  * Automatically snapshots product details from Price List
  */
-OrderSchema.methods.addItem = async function(
+/*OrderSchema.methods.addItem = async function(
   product: IProduct,
   quantity: number,
   priceTier: 'retail' | 'wholesale' | 'special'
@@ -623,7 +623,7 @@ OrderSchema.methods.addItem = async function(
  * Confirm order - locks it and reserves stock
  * Critical transition point: DRAFT → CONFIRMED
  */
-OrderSchema.methods.confirm = async function(
+/*OrderSchema.methods.confirm = async function(
   confirmedBy: Types.ObjectId
 ): Promise<void> {
   if (this.status !== 'DRAFT') {
@@ -668,7 +668,7 @@ OrderSchema.methods.confirm = async function(
  * Start packaging workflow
  * CONFIRMED → PACKING
  */
-OrderSchema.methods.startPacking = async function(
+/*OrderSchema.methods.startPacking = async function(
   startedBy: Types.ObjectId
 ): Promise<void> {
   if (this.status !== 'CONFIRMED') {
@@ -688,7 +688,7 @@ OrderSchema.methods.startPacking = async function(
  * Verify item during packaging
  * Scans SKU, takes photo, marks as verified
  */
-OrderSchema.methods.verifyItem = async function(
+/*OrderSchema.methods.verifyItem = async function(
   itemIndex: number,
   scannedBy: Types.ObjectId,
   photoUrl?: string,
@@ -728,7 +728,7 @@ OrderSchema.methods.verifyItem = async function(
 /**
  * Cancel order - releases reserved stock
  */
-OrderSchema.methods.cancel = async function(
+/*OrderSchema.methods.cancel = async function(
   cancelledBy: Types.ObjectId,
   reason: string
 ): Promise<void> {
@@ -765,7 +765,7 @@ OrderSchema.methods.cancel = async function(
 /**
  * Add message to thread
  */
-OrderSchema.methods.addMessage = function(
+/*OrderSchema.methods.addMessage = function(
   from: Types.ObjectId,
   fromModel: 'Staff' | 'System' | 'Client',
   text: string,
@@ -786,7 +786,7 @@ OrderSchema.methods.addMessage = function(
 /**
  * Add system-generated message
  */
-OrderSchema.methods.addSystemMessage = function(text: string): void {
+/*OrderSchema.methods.addSystemMessage = function(text: string): void {
   this.addMessage(
     new Types.ObjectId('000000000000000000000000'), // System ID
     'System',
@@ -803,7 +803,7 @@ OrderSchema.methods.addSystemMessage = function(text: string): void {
  * Generate next order number
  * Format: ORD-YYYY-XXXXXX (sequential per year)
  */
-OrderSchema.statics.generateOrderNumber = async function(): Promise<string> {
+/*OrderSchema.statics.generateOrderNumber = async function(): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = `ORD-${year}-`;
   
@@ -825,7 +825,7 @@ OrderSchema.statics.generateOrderNumber = async function(): Promise<string> {
 /**
  * Get packaging queue (orders ready to pack)
  */
-OrderSchema.statics.getPackagingQueue = function() {
+/*OrderSchema.statics.getPackagingQueue = function() {
   return this.find({ status: 'CONFIRMED' })
     .sort({ requestedDeliveryDate: 1 })
     .populate('client', 'name phone')
@@ -835,7 +835,7 @@ OrderSchema.statics.getPackagingQueue = function() {
 /**
  * Get orders requiring approval
  */
-OrderSchema.statics.getPendingApprovals = function(threshold: number = 100000) {
+/*OrderSchema.statics.getPendingApprovals = function(threshold: number = 100000) {
   return this.find({
     total: { $gte: threshold },
     approvedBy: { $exists: false },
@@ -878,7 +878,7 @@ OrderSchema.statics.getPendingApprovals = function(threshold: number = 100000) {
 /**
  * Pre-save: Auto-calculate totals, validate status transitions
  */
-OrderSchema.pre<IOrder>('save', async function(next) {
+/*OrderSchema.pre<IOrder>('save', async function(next) {
   // Recalculate financials if items modified
   if (this.isModified('items')) {
     // Use 'this' as IOrder
@@ -907,7 +907,7 @@ OrderSchema.pre<IOrder>('save', async function(next) {
 /**
  * Post-save: Trigger side effects
  */
-OrderSchema.post('save', async function(doc) {
+/*OrderSchema.post('save', async function(doc) {
   // Log to Time Management if status changed
   if (doc.modifiedPaths().includes('status')) {
     // Integration point: Time Management module
@@ -983,3 +983,541 @@ export default Order;
  *   { $group: { _id: '$status', total: { $sum: '$total' }, count: { $sum: 1 } } }
  * ]);
  */
+
+
+
+// models/order.model.ts (fixed version with all corrections)
+import mongoose, { Schema, Document, Types, Model } from 'mongoose';
+import { IProduct } from './Products';
+
+// ----------------------------------------------------------------------------
+// TYPE DEFINITIONS
+// ----------------------------------------------------------------------------
+
+export type OrderStatus = 
+  | 'DRAFT'
+  | 'CONFIRMED'
+  | 'PACKING'
+  | 'PACKED'
+  | 'DELIVERED'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export interface IItemVerification {
+  scanned: boolean;
+  scannedAt?: Date;
+  scannedBy?: Types.ObjectId;
+  photoUrl?: string;
+  notes?: string;
+}
+
+export interface IOrderItem {
+  _id?: Types.ObjectId;
+  product: Types.ObjectId;
+  sku: string;
+  name: string;
+  description?: string;
+  category: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+  verified: IItemVerification;
+  reservedQuantity: number;
+}
+
+export interface IDestination {
+  deliveryPointId: Types.ObjectId;
+  name: string;
+  address: string;
+  contactName?: string;
+  contactPhone?: string;
+  instructions?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
+export interface IOrderMessage {
+  _id: Types.ObjectId;
+  from: Types.ObjectId;
+  fromModel: 'Staff' | 'System' | 'Client';
+  text: string;
+  timestamp: Date;
+  isInternal: boolean;
+  attachments?: string[];
+  messageType: 'text' | 'status_update' | 'delivery_note' | 'system';
+}
+
+export interface IPaymentInfo {
+  _id?: Types.ObjectId;
+  method: 'cash' | 'mpesa' | 'bank_transfer' | 'cheque' | 'credit';
+  reference?: string;
+  amount: number;
+  paidAt?: Date;
+  paidBy?: string;
+  verifiedBy?: Types.ObjectId;
+}
+
+export interface IStatusHistoryEntry {
+  status: OrderStatus;
+  changedAt: Date;
+  changedBy: Types.ObjectId;
+  reason?: string;
+}
+
+export interface IOrder extends Document {
+  orderNumber: string;
+  client: Types.ObjectId;
+  destination: IDestination;
+  items: IOrderItem[];
+  subtotal: number;
+  taxRate: number;
+  tax: number;
+  total: number;
+  deposit: number;
+  balance: number;
+  payments: IPaymentInfo[];
+  status: OrderStatus;
+  statusHistory: IStatusHistoryEntry[];
+  createdBy: Types.ObjectId;
+  assignedTo?: Types.ObjectId;
+  approvedBy?: Types.ObjectId;
+  orderDate: Date;
+  requestedDeliveryDate: Date;
+  promisedDeliveryDate?: Date;
+  actualDeliveryDate?: Date;
+  messages: IOrderMessage[];
+  generatedDocuments: {
+    type: 'invoice' | 'delivery_note' | 'receipt';
+    documentId: Types.ObjectId;
+    number: string;
+    createdAt: Date;
+  }[];
+  version: number;
+  isLocked: boolean;
+  cancellationReason?: string;
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Virtuals
+  allItemsVerified: boolean;
+  verificationProgress: { verified: number; total: number; percentage: number };
+  requiresApproval: boolean;
+  daysUntilDelivery: number | null;
+
+  // Methods
+  recalculateTotals(): void;
+  addItem(product: IProduct, quantity: number, priceTier: 'retail' | 'wholesale' | 'special'): Promise<void>;
+  confirm(confirmedBy: Types.ObjectId): Promise<void>;
+  startPacking(startedBy: Types.ObjectId): Promise<void>;
+  verifyItem(itemIndex: number, scannedBy: Types.ObjectId, photoUrl?: string, notes?: string): Promise<void>;
+  cancel(cancelledBy: Types.ObjectId, reason: string): Promise<void>;
+  addMessage(from: Types.ObjectId, fromModel: 'Staff' | 'System' | 'Client', text: string, isInternal?: boolean, attachments?: string[]): void;
+  addSystemMessage(text: string): void;
+}
+
+// ----------------------------------------------------------------------------
+// SCHEMA DEFINITIONS
+// ----------------------------------------------------------------------------
+
+const ItemVerificationSchema = new Schema<IItemVerification>({
+  scanned: { type: Boolean, default: false },
+  scannedAt: Date,
+  scannedBy: { type: Schema.Types.ObjectId, ref: 'Staff' },
+  photoUrl: { type: String, validate: /^https?:\/\/.+/ },
+  notes: { type: String, maxlength: 500 }
+}, { _id: false });
+
+const OrderItemSchema = new Schema<IOrderItem>({
+  product: { type: Schema.Types.ObjectId, ref: 'Product', required: true, index: true },
+  sku: { type: String, required: true, uppercase: true, trim: true },
+  name: { type: String, required: true, trim: true },
+  description: String,
+  category: { type: String, required: true, index: true },
+  quantity: { type: Number, required: true, min: 1, validate: [Number.isInteger, 'Quantity must be a whole number'] },
+  unitPrice: { type: Number, required: true, min: 0 },
+  total: { type: Number, required: true, min: 0 },
+  verified: { type: ItemVerificationSchema, default: () => ({ scanned: false }) },
+  reservedQuantity: { type: Number, default: 0, min: 0 }
+}, { _id: true });
+
+const DestinationSchema = new Schema<IDestination>({
+  deliveryPointId: { type: Schema.Types.ObjectId, ref: 'DeliveryPoint', required: true },
+  name: { type: String, required: true, trim: true },
+  address: { type: String, required: true, trim: true },
+  contactName: String,
+  contactPhone: String,
+  instructions: String,
+  coordinates: { lat: Number, lng: Number }
+}, { _id: false });
+
+const OrderMessageSchema = new Schema<IOrderMessage>({
+  from: { type: Schema.Types.ObjectId, required: true, refPath: 'messages.fromModel' },
+  fromModel: { type: String, required: true, enum: ['Staff', 'System', 'Client'] },
+  text: { type: String, required: true, maxlength: 2000 },
+  timestamp: { type: Date, default: Date.now },
+  isInternal: { type: Boolean, default: false },
+  attachments: [String],
+  messageType: { type: String, enum: ['text', 'status_update', 'delivery_note', 'system'], default: 'text' }
+}, { _id: true });
+
+const PaymentInfoSchema = new Schema<IPaymentInfo>({
+  method: { type: String, enum: ['cash', 'mpesa', 'bank_transfer', 'cheque', 'credit'], required: true },
+  reference: String,
+  amount: { type: Number, required: true, min: 0 },
+  paidAt: Date,
+  paidBy: String,
+  verifiedBy: { type: Schema.Types.ObjectId, ref: 'Staff' }
+}, { _id: true });
+
+// ----------------------------------------------------------------------------
+// MAIN ORDER SCHEMA
+// ----------------------------------------------------------------------------
+
+const OrderSchema = new Schema<IOrder>({
+  orderNumber: { type: String, required: true, unique: true, index: true },
+  client: { type: Schema.Types.ObjectId, ref: 'Client', required: true, index: true },
+  destination: { type: DestinationSchema, required: [true, 'Destination is mandatory - prevents wrong delivery'] },
+  items: { type: [OrderItemSchema], required: true, validate: [(val: IOrderItem[]) => val.length > 0, 'Order must contain at least one item'] },
+  subtotal: { type: Number, required: true, min: 0, default: 0 },
+  taxRate: { type: Number, default: 16, min: 0, max: 100 },
+  tax: { type: Number, required: true, min: 0, default: 0 },
+  total: { type: Number, required: true, min: 0, default: 0 },
+  deposit: { type: Number, default: 0, min: 0 },
+  balance: { type: Number, required: true, default: 0 },
+  payments: [PaymentInfoSchema],
+  status: { type: String, enum: ['DRAFT', 'CONFIRMED', 'PACKING', 'PACKED', 'DELIVERED', 'COMPLETED', 'CANCELLED'], default: 'DRAFT', index: true },
+  statusHistory: [{
+    status: { type: String, enum: ['DRAFT', 'CONFIRMED', 'PACKING', 'PACKED', 'DELIVERED', 'COMPLETED', 'CANCELLED'], required: true },
+    changedAt: { type: Date, default: Date.now, required: true },
+    changedBy: { type: Schema.Types.ObjectId, ref: 'Staff', required: true },
+    reason: String
+  }],
+  createdBy: { type: Schema.Types.ObjectId, ref: 'Staff', required: true },
+  assignedTo: { type: Schema.Types.ObjectId, ref: 'Staff', index: true },
+  approvedBy: { type: Schema.Types.ObjectId, ref: 'Staff' },
+  orderDate: { type: Date, default: Date.now, index: true },
+  requestedDeliveryDate: { type: Date, required: true },
+  promisedDeliveryDate: Date,
+  actualDeliveryDate: Date,
+  messages: [OrderMessageSchema],
+  generatedDocuments: [{
+    type: { type: String, enum: ['invoice', 'delivery_note', 'receipt'], required: true },
+    documentId: { type: Schema.Types.ObjectId, required: true },
+    number: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+  }],
+  version: { type: Number, default: 1 },
+  isLocked: { type: Boolean, default: false, index: true },
+  cancellationReason: String
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// ----------------------------------------------------------------------------
+// INDEXES
+// ----------------------------------------------------------------------------
+
+OrderSchema.index({ client: 1, orderDate: -1 });
+OrderSchema.index({ promisedDeliveryDate: 1, status: 1 });
+OrderSchema.index({ assignedTo: 1, status: 1 });
+OrderSchema.index({ status: 1, requestedDeliveryDate: 1 });
+OrderSchema.index({ total: -1, approvedBy: 1 });
+
+// ----------------------------------------------------------------------------
+// VIRTUALS
+// ----------------------------------------------------------------------------
+
+OrderSchema.virtual('allItemsVerified').get(function(this: IOrder) {
+  return this.items.length > 0 && this.items.every(item => item.verified.scanned);
+});
+
+OrderSchema.virtual('verificationProgress').get(function(this: IOrder) {
+  const verified = this.items.filter(i => i.verified.scanned).length;
+  return { 
+    verified, 
+    total: this.items.length, 
+    percentage: this.items.length > 0 ? Math.round((verified / this.items.length) * 100) : 0 
+  };
+});
+
+OrderSchema.virtual('requiresApproval').get(function(this: IOrder) {
+  const HIGH_VALUE_THRESHOLD = 100000;
+  return this.total >= HIGH_VALUE_THRESHOLD && !this.approvedBy;
+});
+
+OrderSchema.virtual('daysUntilDelivery').get(function(this: IOrder) {
+  if (!this.promisedDeliveryDate) return null;
+  const diff = this.promisedDeliveryDate.getTime() - Date.now();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+});
+
+// ----------------------------------------------------------------------------
+// METHODS
+// ----------------------------------------------------------------------------
+
+OrderSchema.methods.recalculateTotals = function(this: IOrder): void {
+  this.subtotal = this.items.reduce((sum, item) => sum + item.total, 0);
+  this.tax = Math.round(this.subtotal * (this.taxRate / 100) * 100) / 100;
+  this.total = this.subtotal + this.tax;
+  this.balance = this.total - this.deposit - this.payments.reduce((sum, p) => sum + p.amount, 0);
+};
+
+OrderSchema.methods.addItem = async function(
+  this: IOrder,
+  product: IProduct,
+  quantity: number,
+  priceTier: 'retail' | 'wholesale' | 'special'
+): Promise<void> {
+  if (this.status !== 'DRAFT') {
+    throw new Error('Cannot modify items after order is confirmed');
+  }
+  
+  const unitPrice = product.getPriceForTier(priceTier);
+  const total = Math.round(unitPrice * quantity * 100) / 100;
+  
+  this.items.push({
+    product: product._id as Types.ObjectId,
+    sku: product.sku,
+    name: product.name,
+    description: product.description,
+    category: product.category,
+    quantity,
+    unitPrice,
+    total,
+    verified: { scanned: false },
+    reservedQuantity: 0
+  });
+  
+  this.recalculateTotals();
+  this.version += 1;
+};
+
+OrderSchema.methods.confirm = async function(this: IOrder, confirmedBy: Types.ObjectId): Promise<void> {
+  if (this.status !== 'DRAFT') {
+    throw new Error(`Cannot confirm order in ${this.status} status`);
+  }
+  
+  if (!this.destination || !this.destination.address) {
+    throw new Error('Destination address is mandatory');
+  }
+  
+  const Product = mongoose.model<IProduct>('Product');
+  
+  for (const item of this.items) {
+    const product = await Product.findById(item.product);
+    if (!product) throw new Error(`Product not found: ${item.sku}`);
+    
+    const reserved = await product.reserveStock(item.quantity);
+    if (!reserved) {
+      throw new Error(`Insufficient stock for ${item.sku}. Available: ${product.stockQuantity}`);
+    }
+    
+    item.reservedQuantity = item.quantity;
+  }
+  
+  this.status = 'CONFIRMED';
+  this.isLocked = true;
+  this.version += 1;
+  
+  // Fixed: Added changedAt field
+  this.statusHistory.push({
+    status: 'CONFIRMED',
+    changedAt: new Date(),
+    changedBy: confirmedBy,
+    reason: 'Order confirmed by sales rep'
+  });
+  
+  this.addSystemMessage(`Order confirmed by staff ${confirmedBy}`);
+};
+
+OrderSchema.methods.startPacking = async function(this: IOrder, startedBy: Types.ObjectId): Promise<void> {
+  if (this.status !== 'CONFIRMED') {
+    throw new Error('Order must be confirmed before packing');
+  }
+  
+  this.status = 'PACKING';
+  
+  // Fixed: Added changedAt field
+  this.statusHistory.push({ 
+    status: 'PACKING', 
+    changedAt: new Date(),
+    changedBy: startedBy 
+  });
+  
+  this.addSystemMessage('Packaging workflow started');
+};
+
+OrderSchema.methods.verifyItem = async function(
+  this: IOrder,
+  itemIndex: number,
+  scannedBy: Types.ObjectId,
+  photoUrl?: string,
+  notes?: string
+): Promise<void> {
+  if (this.status !== 'PACKING') {
+    throw new Error('Can only verify items during PACKING status');
+  }
+  
+  const item = this.items[itemIndex];
+  if (!item) throw new Error('Item not found');
+  
+  item.verified = {
+    scanned: true,
+    scannedAt: new Date(),
+    scannedBy,
+    photoUrl,
+    notes
+  };
+  
+  // Fixed: Use get() method to access virtual
+  const allVerified = (this as any).allItemsVerified;
+  if (allVerified) {
+    this.status = 'PACKED';
+    
+    // Fixed: Added changedAt field
+    this.statusHistory.push({ 
+      status: 'PACKED', 
+      changedAt: new Date(),
+      changedBy: scannedBy, 
+      reason: 'All items verified' 
+    });
+  }
+  
+  this.version += 1;
+};
+
+OrderSchema.methods.cancel = async function(this: IOrder, cancelledBy: Types.ObjectId, reason: string): Promise<void> {
+  if (['DELIVERED', 'COMPLETED'].includes(this.status)) {
+    throw new Error('Cannot cancel delivered or completed orders');
+  }
+  
+  const Product = mongoose.model<IProduct>('Product');
+  
+  for (const item of this.items) {
+    if (item.reservedQuantity > 0) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        await product.releaseStock(item.reservedQuantity);
+      }
+      item.reservedQuantity = 0;
+    }
+  }
+  
+  this.status = 'CANCELLED';
+  this.cancellationReason = reason;
+  this.isLocked = true;
+  
+  // Fixed: Added changedAt field
+  this.statusHistory.push({ 
+    status: 'CANCELLED', 
+    changedAt: new Date(),
+    changedBy: cancelledBy, 
+    reason 
+  });
+  
+  this.addSystemMessage(`Order cancelled: ${reason}`);
+};
+
+OrderSchema.methods.addMessage = function(
+  this: IOrder,
+  from: Types.ObjectId,
+  fromModel: 'Staff' | 'System' | 'Client',
+  text: string,
+  isInternal: boolean = false,
+  attachments?: string[]
+): void {
+  this.messages.push({
+    _id: new Types.ObjectId(),
+    from,
+    fromModel,
+    text,
+    isInternal,
+    attachments: attachments || [],
+    messageType: fromModel === 'System' ? 'system' : 'text',
+    timestamp: new Date()
+  });
+};
+
+OrderSchema.methods.addSystemMessage = function(this: IOrder, text: string): void {
+  this.addMessage(new Types.ObjectId('000000000000000000000000'), 'System', text, false);
+};
+
+// ----------------------------------------------------------------------------
+// STATICS
+// ----------------------------------------------------------------------------
+
+OrderSchema.static('generateOrderNumber', async function(): Promise<string> {
+  const year = new Date().getFullYear();
+  const prefix = `ORD-${year}-`;
+  
+  const lastOrder = await this.findOne(
+    { orderNumber: { $regex: `^${prefix}` } },
+    { orderNumber: 1 },
+    { sort: { orderNumber: -1 } }
+  );
+  
+  let sequence = 1;
+  if (lastOrder) {
+    const lastSequence = parseInt(lastOrder.orderNumber.split('-')[2]);
+    sequence = lastSequence + 1;
+  }
+  
+  return `${prefix}${sequence.toString().padStart(6, '0')}`;
+});
+
+OrderSchema.static('getPackagingQueue', function() {
+  return this.find({ status: 'CONFIRMED' })
+    .sort({ requestedDeliveryDate: 1 })
+    .populate('client', 'name phone')
+    .populate('items.product', 'sku name photos');
+});
+
+OrderSchema.static('getPendingApprovals', function(threshold: number = 100000) {
+  return this.find({
+    total: { $gte: threshold },
+    approvedBy: { $exists: false },
+    status: { $nin: ['CANCELLED', 'COMPLETED'] }
+  }).sort({ total: -1 });
+});
+
+// ----------------------------------------------------------------------------
+// MIDDLEWARE
+// ----------------------------------------------------------------------------
+
+OrderSchema.pre<IOrder>('save', async function(next) {
+  if (this.isModified('items')) {
+    this.recalculateTotals();
+  }
+  
+  if (!this.isNew && this.isModified() && this.isLocked) {
+    const allowedFields = ['status', 'messages', 'payments', 'actualDeliveryDate', 'generatedDocuments'];
+    const modifiedPaths = this.modifiedPaths();
+    const hasIllegalChanges = modifiedPaths.some(p => !allowedFields.includes(p.split('.')[0]));
+    
+    if (hasIllegalChanges) {
+      throw new Error('Order is locked - only status, payments, and delivery updates allowed');
+    }
+  }
+  
+  if (!this.isNew) {
+    this.version += 1;
+  }
+  
+});
+
+OrderSchema.post<IOrder>('save', async function(doc) {
+  if (doc.modifiedPaths().includes('status')) {
+    console.log(`[TimeLog] Order ${doc.orderNumber} status: ${doc.status}`);
+  }
+});
+
+// ----------------------------------------------------------------------------
+// MODEL EXPORT
+// ----------------------------------------------------------------------------
+
+export const Order = mongoose.model<IOrder>('Order', OrderSchema);
+export default Order;
