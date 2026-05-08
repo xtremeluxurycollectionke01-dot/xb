@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db/mongoose";
 import Prroduct from "@/models/Prroduct";
 import { errorResponse, successResponse } from "@/src/utils/response";
@@ -5,13 +6,14 @@ import { errorResponse, successResponse } from "@/src/utils/response";
 
 // GET SINGLE PRODUCT
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
+    const { id } = await params;
 
-    const product = await Prroduct.findById(params.id);
+    const product = await Prroduct.findById(id);
 
     if (!product) {
       return errorResponse("Product not found", 404);
@@ -25,20 +27,19 @@ export async function GET(
 
 // UPDATE PRODUCT
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
+    const { id } = await params;
 
     const body = await req.json();
 
     const product = await Prroduct.findByIdAndUpdate(
-      params.id,
+      id,
       body,
-      {
-        new: true,
-      }
+      { new: true }
     );
 
     if (!product) {
@@ -53,13 +54,14 @@ export async function PUT(
 
 // DELETE PRODUCT
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
+    const { id } = await params;
 
-    const product = await Prroduct.findByIdAndDelete(params.id);
+    const product = await Prroduct.findByIdAndDelete(id);
 
     if (!product) {
       return errorResponse("Product not found", 404);
