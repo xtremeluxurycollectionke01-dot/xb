@@ -306,7 +306,7 @@ export async function OPTIONS(request: NextRequest) {
 }*/
 
 // app/api/products/[id]/restock/route.ts
-import mongoose from 'mongoose';
+/*import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { PricingTier, Product, StockStatus } from '@/models/Products';
@@ -471,4 +471,134 @@ export async function OPTIONS(request: NextRequest) {
     status: 204,
     headers: corsHeaders
   });
+}*/
+
+// app/api/products/[id]/restock/route.ts
+import mongoose from 'mongoose';
+import { NextRequest, NextResponse } from 'next/server';
+import { PricingTier, Product, StockStatus } from '@/models/Products';
+import dbConnect from '@/lib/db/mongoose';
+
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    await dbConnect();
+    
+    const { id } = await context.params;
+    const body = await request.json();
+    const { quantity, supplier, notes } = body;
+
+    if (!quantity || quantity <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'Quantity must be a positive number' },
+        { status: 400 }
+      );
+    }
+    
+    const product = await Product.findOne({ id: id });
+
+    if (!product) {
+      return NextResponse.json(
+        { success: false, error: 'Product not found' },
+        { status: 404 }
+      );
+    }
+    
+    const oldStock = product.stockQuantity;
+    const newStock = oldStock + quantity;
+    
+    const threshold = product.reorderLevel || product.reorderPoint || 0;
+    let newStatus: StockStatus;
+    let newInStock: boolean;
+    
+    if (newStock === 0) {
+      newStatus = StockStatus.OUT_OF_STOCK;
+      newInStock = false;
+    } else if (newStock <= threshold) {
+      newStatus = StockStatus.LOW_STOCK;
+      newInStock = true;
+    } else {
+      newStatus = StockStatus.IN_STOCK;
+      newInStock = true;
+    }
+
+    const stockHistoryEntry = {
+      _id: new mongoose.Types.ObjectId().toString(),
+      quantity: quantity,
+      type: 'restock' as const,
+      oldQuantity: oldStock,
+      newQuantity: newStock,
+      supplier: supplier || product.supplier || 'system',
+      notes: notes || `Restocked: +${quantity} units`,
+      reference: `RESTOCK-${Date.now()}`,
+      adjustedBy: 'system',
+      timestamp: new Date()
+    };
+
+    const priceHistoryEntry = {
+      _id: new mongoose.Types.ObjectId().toString(),
+      oldPrice: product.price,
+      newPrice: product.price,
+      tier: product.pricing?.retail ? PricingTier.RETAIL : PricingTier.SPECIAL,
+      changedBy: 'system',
+      changedAt: new Date(),
+      reason: `Restocked: +${quantity} units (Old: ${oldStock}, New: ${newStock})`
+    };
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { id: id },
+      {
+        $set: {
+          stockQuantity: newStock,
+          stock: newStock,
+          stockStatus: newStatus,
+          inStock: newInStock,
+          updatedAt: new Date()
+        },
+        $push: {
+          stockHistory: stockHistoryEntry,
+          priceHistory: priceHistoryEntry
+        }
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct) {
+      return NextResponse.json(
+        { success: false, error: 'Product update failed' },
+        { status: 409 }
+      );
+    }
+    
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: updatedProduct._id,
+        name: updatedProduct.name,
+        sku: updatedProduct.sku,
+        oldStock,
+        newStock: updatedProduct.stockQuantity,
+        added: quantity,
+        status: updatedProduct.stockStatus
+      },
+      message: `Successfully added ${quantity} units to ${updatedProduct.name}`
+    });
+
+  } catch (error: any) {
+    console.error('Restock error:', error);
+    
+    if (error.name === 'VersionError') {
+      return NextResponse.json(
+        { success: false, error: 'Product was modified by another process. Please retry.' },
+        { status: 409 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to restock product' },
+      { status: 500 }
+    );
+  }
 }
