@@ -130,7 +130,7 @@ export async function OPTIONS(request: NextRequest) {
 }*/
 
 // app/api/products/[id]/restock/route.ts
-import mongoose from 'mongoose';
+/*import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { PricingTier, Product, StockStatus } from '@/models/Products';
@@ -281,6 +281,174 @@ export async function POST(
     console.error('Restock error:', error);
     
     // Handle specific Mongoose errors
+    if (error.name === 'VersionError') {
+      return NextResponse.json(
+        { success: false, error: 'Product was modified by another process. Please retry.' },
+        { status: 409, headers: corsHeaders }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to restock product' },
+      { status: 500, headers: corsHeaders }
+    );
+  }
+}
+
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+  
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders
+  });
+}*/
+
+// app/api/products/[id]/restock/route.ts
+import mongoose from 'mongoose';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { PricingTier, Product, StockStatus } from '@/models/Products';
+import dbConnect from '@/lib/db/mongoose';
+
+const ALLOWED_ORIGINS = [
+  'http://127.0.0.1:5500',
+  'http://localhost:5500',
+  'http://127.0.0.1:3000',
+  'http://localhost:3000'
+];
+
+function getCorsHeaders(origin: string | null) {
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) 
+    ? origin 
+    : ALLOWED_ORIGINS[0];
+  
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-app-type',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': '86400'
+  };
+}
+
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const origin = request.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+  
+  try {
+    await dbConnect();
+    
+    const { id } = await context.params;
+    const body = await request.json();
+    const { quantity, supplier, notes } = body;
+
+    if (!quantity || quantity <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'Quantity must be a positive number' },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+    
+    const product = await Product.findOne({ id: id });
+
+    if (!product) {
+      return NextResponse.json(
+        { success: false, error: 'Product not found' },
+        { status: 404, headers: corsHeaders }
+      );
+    }
+    
+    const oldStock = product.stockQuantity;
+    const newStock = oldStock + quantity;
+    
+    const threshold = product.reorderLevel || product.reorderPoint || 0;
+    let newStatus: StockStatus;
+    let newInStock: boolean;
+    
+    if (newStock === 0) {
+      newStatus = StockStatus.OUT_OF_STOCK;
+      newInStock = false;
+    } else if (newStock <= threshold) {
+      newStatus = StockStatus.LOW_STOCK;
+      newInStock = true;
+    } else {
+      newStatus = StockStatus.IN_STOCK;
+      newInStock = true;
+    }
+
+    const stockHistoryEntry = {
+      _id: new mongoose.Types.ObjectId().toString(),
+      quantity: quantity,
+      type: 'restock' as const,
+      oldQuantity: oldStock,
+      newQuantity: newStock,
+      supplier: supplier || product.supplier || 'system',
+      notes: notes || `Restocked: +${quantity} units`,
+      reference: `RESTOCK-${Date.now()}`,
+      adjustedBy: 'system',
+      timestamp: new Date()
+    };
+
+    const priceHistoryEntry = {
+      _id: new mongoose.Types.ObjectId().toString(),
+      oldPrice: product.price,
+      newPrice: product.price,
+      tier: product.pricing?.retail ? PricingTier.RETAIL : PricingTier.SPECIAL,
+      changedBy: 'system',
+      changedAt: new Date(),
+      reason: `Restocked: +${quantity} units (Old: ${oldStock}, New: ${newStock})`
+    };
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { id: id },
+      {
+        $set: {
+          stockQuantity: newStock,
+          stock: newStock,
+          stockStatus: newStatus,
+          inStock: newInStock,
+          updatedAt: new Date()
+        },
+        $push: {
+          stockHistory: stockHistoryEntry,
+          priceHistory: priceHistoryEntry
+        }
+      },
+      { 
+        new: true,
+        runValidators: true 
+      }
+    );
+
+    if (!updatedProduct) {
+      return NextResponse.json(
+        { success: false, error: 'Product update failed - document may have been modified' },
+        { status: 409, headers: corsHeaders }
+      );
+    }
+    
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: updatedProduct._id,
+        name: updatedProduct.name,
+        sku: updatedProduct.sku,
+        oldStock,
+        newStock: updatedProduct.stockQuantity,
+        added: quantity,
+        status: updatedProduct.stockStatus
+      },
+      message: `Successfully added ${quantity} units to ${updatedProduct.name}`
+    }, { status: 200, headers: corsHeaders });
+    
+  } catch (error: any) {
+    console.error('Restock error:', error);
+    
     if (error.name === 'VersionError') {
       return NextResponse.json(
         { success: false, error: 'Product was modified by another process. Please retry.' },
