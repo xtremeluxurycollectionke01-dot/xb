@@ -131,6 +131,16 @@ Later upgrade:
 
 
 
+
+
+/*/mpesa
+  ├── stkPush.js
+  ├── accessToken.js
+  ├── callback.js
+  ├── registerUrl.js (only if using C2B)*/
+
+
+
 import axios from "axios";
 import { getAccessToken } from "@/lib/mpesa/token";
 
