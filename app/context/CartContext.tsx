@@ -280,7 +280,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const tax = subtotal * 0.16 // 16% VAT
-  const shipping = subtotal > 50000 ? 0 : 1000 // Free shipping over KES 50,000
+  const shipping = subtotal > 50000 ? 0 : 0 // Free shipping over KES 50,000
   const total = subtotal + tax + shipping
 
   return (

@@ -1314,7 +1314,7 @@ export default function CheckoutPage() {
       id: 'standard',
       name: 'Standard Shipping',
       description: 'Regular delivery to your doorstep',
-      price: 1000,
+      price: 0,
       estimatedDays: '3-5 business days',
       icon: FiPackage
     },
