@@ -7,12 +7,12 @@ import { Types } from 'mongoose';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }  // FIX: params is now a Promise
 ) {
   try {
     await dbConnect();
     
-    const { id } = params;
+    const { id } = await params;  // FIX: await the params Promise
     const body = await request.json();
     const { status, errorCode, errorMessage, metadata } = body;
     
