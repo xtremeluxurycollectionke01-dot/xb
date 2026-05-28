@@ -2644,7 +2644,7 @@ export default function CheckoutPage() {
   }
   
   // Initiate M-Pesa STK Push
-  const initiateMpesaPayment = async (orderId: string, amount: number, phoneNumber: string): Promise<{ success: boolean; transactionId?: string; error?: string }> => {
+  /*const initiateMpesaPayment = async (orderId: string, amount: number, phoneNumber: string): Promise<{ success: boolean; transactionId?: string; error?: string }> => {
     try {
       const formattedPhone = formatMpesaPhoneNumber(phoneNumber)
       
@@ -2691,7 +2691,124 @@ export default function CheckoutPage() {
         error: error.message || 'Failed to initiate M-Pesa payment'
       }
     }
+  }*/
+
+    // In app/checkout/page.tsx - Update the initiateMpesaPayment function
+
+const initiateMpesaPayment = async (orderId: string, orderNumber: string, amount: number, phoneNumber: string): Promise<{ success: boolean; paymentId?: string; checkoutRequestId?: string; error?: string }> => {
+  try {
+    const formattedPhone = formatMpesaPhoneNumber(phoneNumber)
+    
+    console.log('Initiating M-Pesa payment:', {
+      orderId,
+      orderNumber,
+      amount,
+      phoneNumber: formattedPhone
+    })
+    
+    // First, create a payment record in PENDING state
+    const createPaymentResponse = await fetch('/api/payments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        orderId: orderId,
+        orderNumber: orderNumber,
+        amount: Math.round(amount),
+        method: 'mpesa',
+        channel: 'stk_push',
+        customerPhone: formattedPhone,
+        metadata: {
+          phoneNumber: formattedPhone
+        }
+      })
+    })
+    
+    const paymentResult = await createPaymentResponse.json()
+    
+    if (!createPaymentResponse.ok) {
+      throw new Error(paymentResult.error?.message || 'Failed to create payment record')
+    }
+    
+    const paymentId = paymentResult.data.paymentId
+    
+    // Now initiate STK push with the payment ID
+    const stkResponse = await fetch('/api/mpesa/stk', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        phone: formattedPhone,
+        amount: Math.round(amount),
+        orderId: orderId,
+        paymentId: paymentId  // Pass payment ID to STK push
+      })
+    })
+    
+    const stkData = await stkResponse.json()
+    
+    if (!stkResponse.ok) {
+      // Update payment as failed if STK push fails
+      await fetch(`/api/payments/${paymentId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'FAILED',
+          errorCode: 'STK_INIT_FAILED',
+          errorMessage: stkData.error || 'Failed to initiate STK push'
+        })
+      })
+      
+      throw new Error(stkData.error || stkData.message || 'Failed to initiate M-Pesa payment')
+    }
+    
+    // Check if STK push was successful
+    if (stkData.ResponseCode === '0' || stkData.ResponseCode === 0) {
+      // Update payment with checkout request ID
+      await fetch(`/api/payments/${paymentId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'PROCESSING',
+          metadata: {
+            checkoutRequestID: stkData.CheckoutRequestID,
+            merchantRequestID: stkData.MerchantRequestID
+          }
+        })
+      })
+      
+      return {
+        success: true,
+        paymentId: paymentId,
+        checkoutRequestId: stkData.CheckoutRequestID
+      }
+    } else {
+      // Update payment as failed
+      await fetch(`/api/payments/${paymentId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'FAILED',
+          errorCode: stkData.ResponseCode,
+          errorMessage: stkData.ResponseDescription || 'STK push failed'
+        })
+      })
+      
+      return {
+        success: false,
+        error: stkData.ResponseDescription || 'Payment initiation failed'
+      }
+    }
+  } catch (error: any) {
+    console.error('M-Pesa initiation error:', error)
+    return {
+      success: false,
+      error: error.message || 'Failed to initiate M-Pesa payment'
+    }
   }
+}
   
   // Check M-Pesa payment status (polling)
   const checkPaymentStatus = async (orderId: string, maxAttempts = 30, interval = 3000): Promise<{ success: boolean; mpesaCode?: string }> => {
@@ -2798,8 +2915,15 @@ export default function CheckoutPage() {
           toast.loading('Sending payment request to your phone...', { id: 'mpesa-payment' })
           
           // Initiate M-Pesa payment
+          //const paymentResult = await initiateMpesaPayment(
+          //  order.id,
+          //  order.total,
+          //  mpesaPhone
+          //)
+
           const paymentResult = await initiateMpesaPayment(
             order.id,
+            order.orderNumber,
             order.total,
             mpesaPhone
           )
