@@ -11,8 +11,9 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-const Message = require("./models/Message");
+
 const Conversation = require("./models/Conversation");
+const Message = require("./models/Message")
 
 // ======================
 // Firebase Admin SDK
