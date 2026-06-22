@@ -2,7 +2,7 @@
 // app/api/auth/forgot-password/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {dbConnect} from "@/lib/mongodb";
-import User from "@/models/User";
+import User from "@/models/UserModel/User";
 import PasswordResetToken from "@/models/PasswordResetToken";
 import crypto from "crypto";
 

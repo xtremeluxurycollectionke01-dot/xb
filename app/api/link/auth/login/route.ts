@@ -1,7 +1,7 @@
 // app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
-import User from "@/models/User";
+import User from "@/models/UserModel/User";
 import { signToken } from "@/lib/auth";
 
 export async function POST(request: Request) {
