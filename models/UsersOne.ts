@@ -2869,7 +2869,7 @@ InvitationSchema.methods.isExpired = function(): boolean {
 // ----------------------------------------------------------------------------
 // MODEL EXPORTS - FIXED FOR NEXT.JS HOT RELOAD
 // ----------------------------------------------------------------------------
-export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+export const UserOne = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 export const Invitation = mongoose.models.Invitation || mongoose.model<IInvitation>('Invitation', InvitationSchema);
 export const SecurityLog = mongoose.models.SecurityLog || mongoose.model<ISecurityLog>('SecurityLog', SecurityLogSchema);
 
