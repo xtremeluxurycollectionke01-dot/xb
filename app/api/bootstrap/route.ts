@@ -1,7 +1,7 @@
 // app/api/bootstrap/route.ts
 
 import dbConnect from '@/lib/db/mongoose';
-import { User } from '@/models/Users';
+import { User } from '@/models/UsersOne';
 import Staff from '@/models/Staff';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';

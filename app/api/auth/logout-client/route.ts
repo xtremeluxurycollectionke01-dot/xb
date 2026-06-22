@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/db/mongoose';
-import { User, SecurityLog } from '@/models/Users';
+import { User, SecurityLog } from '@/models/UsersOne';
 
 export async function POST(req: NextRequest) {
   console.log('[LOGOUT] Processing logout request...');

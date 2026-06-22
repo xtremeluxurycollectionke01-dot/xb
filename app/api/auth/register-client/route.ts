@@ -301,7 +301,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import Client from '@/models/Clients';
-import { SecurityLog, SystemRole, User } from '@/models/Users';
+import { SecurityLog, SystemRole, User } from '@/models/UsersOne';
 import dbConnect from '@/lib/db/mongoose';
 
 // ============================================================================

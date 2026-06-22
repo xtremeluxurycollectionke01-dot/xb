@@ -1130,7 +1130,7 @@ export const OPTIONS = withCORS(
 // app/api/auth/login/route.ts
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/db/mongoose';
-import { User, SecurityLog } from '@/models/Users';
+import { User, SecurityLog } from '@/models/UsersOne';
 import { successResponse, errors } from '@/lib/utils/api-response';
 import { generateTokens } from '@/lib/utils/jwt';
 import { withCORS } from '@/lib/cors/cors';

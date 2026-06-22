@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/db/mongoose';
-import { User, SecurityLog } from '@/models/Users';
+import { User, SecurityLog } from '@/models/UsersOne';
 import '@/models/Clients'
 
 export async function GET(req: NextRequest) {

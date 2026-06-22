@@ -99,7 +99,7 @@ export function requireRoleLevel(user: AuthContext, minLevel: number): boolean {
 import { NextRequest } from 'next/server';
 import { verifyAccessToken } from '@/lib/utils/jwt';
 import dbConnect from '@/lib/db/mongoose';
-import { User } from '@/models/Users';
+import { User } from '@/models/UsersOne';
 
 export interface AuthContext {
   userId: string;
