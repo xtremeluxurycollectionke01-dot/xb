@@ -112,6 +112,11 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log(
+      "User Schema Paths:",
+      Object.keys(User.schema.paths)
+    );
+
     const user = await User.create({
       name,
       email: email.toLowerCase(),
