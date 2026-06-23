@@ -206,3 +206,6 @@
 // export function isClient(auth: AuthContext): boolean {
 //   return !!auth.clientId || auth.accountType === 'CLIENT';
 // }
+export async function POST(req: Request) {
+  return Response.json({ success: true });
+}
