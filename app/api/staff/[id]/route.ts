@@ -671,3 +671,6 @@
 //     return NextResponse.json({ error: 'Deactivation failed' }, { status: 500 });
 //   }
 // }
+export async function POST(req: Request) {
+  return Response.json({ success: true });
+}

@@ -445,3 +445,6 @@
 //     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
 //     .join(' ');
 // }
+export async function POST(req: Request) {
+  return Response.json({ success: true });
+}

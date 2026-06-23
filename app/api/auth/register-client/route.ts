@@ -651,3 +651,6 @@
 //     return NextResponse.json({ error: 'Check failed' }, { status: 500 });
 //   }
 // }
+export async function POST(req: Request) {
+  return Response.json({ success: true });
+}

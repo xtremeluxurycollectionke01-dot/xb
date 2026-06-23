@@ -595,3 +595,6 @@
 // export const GET = withCORS(getStaffHandler);
 // export const POST = withCORS(postStaffHandler);
 // export const OPTIONS = withCORS(async () => new Response(null, { status: 204 }));
+export async function POST(req: Request) {
+  return Response.json({ success: true });
+}

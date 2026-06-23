@@ -580,3 +580,6 @@
 //   async () => new Response(null, { status: 204 }),
 //   'http://127.0.0.1:5500'
 // );
+export async function POST(req: Request) {
+  return Response.json({ success: true });
+}

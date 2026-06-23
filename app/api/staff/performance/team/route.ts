@@ -472,3 +472,6 @@
 // // Export with CORS middleware
 // export const GET = withCORS(getTeamPerformanceHandler);
 // export const OPTIONS = withCORS(async () => new Response(null, { status: 204 }));
+export async function POST(req: Request) {
+  return Response.json({ success: true });
+}

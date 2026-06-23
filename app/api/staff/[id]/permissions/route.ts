@@ -245,3 +245,6 @@
 //     return NextResponse.json({ error: 'Permission check failed' }, { status: 500 });
 //   }
 // }
+export async function POST(req: Request) {
+  return Response.json({ success: true });
+}
