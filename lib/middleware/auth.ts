@@ -808,6 +808,6 @@
 // export function isClientUser(auth: AuthContext): boolean {
 //   return !!auth.clientId || auth.accountType === 'CLIENT' || auth.accountType === 'BOTH';
 // }
-export async function POST(req: Request) {
-  return Response.json({ success: true });
+export interface AuthContext {
+  userId: string;
 }
