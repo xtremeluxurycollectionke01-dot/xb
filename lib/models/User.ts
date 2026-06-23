@@ -97,7 +97,7 @@ export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema)
 
 // lib/models/User.ts
 
-import mongoose, { Schema, Document } from 'mongoose';
+/*import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {
   staff: mongoose.Types.ObjectId;
@@ -196,4 +196,4 @@ const UserSchema = new Schema<IUser>({
   preferences: Schema.Types.Mixed
 }, { timestamps: true });
 
-export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);*/
