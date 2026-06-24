@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 }*/
 
 // app/api/mpesa/callback/route.ts 
-import { NextResponse } from "next/server";
+/*import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db/mongoose";
 import { Payment } from "@/models/Payment.model";
 import { Order } from "@/models/Orders";
@@ -139,7 +139,7 @@ import mongoose from "mongoose";
     console.error("❌ Callback processing error:", error);
     return NextResponse.json({ ResultCode: 1, ResultDesc: error.message });
   }
-}*/
+}*
 
 export async function POST(req: Request) {
   try {
@@ -225,7 +225,7 @@ export async function POST(req: Request) {
         status: updatedPayment.status,
         transactionReference: updatedPayment.transactionReference,
         isVerified: updatedPayment.isVerified
-      });*/
+      });*
       
       // Also update the order status if needed
       const order = await Order.findById(payment.orderId);
@@ -268,6 +268,105 @@ export async function POST(req: Request) {
     
   } catch (error: any) {
     console.error("❌ Callback processing error:", error);
+    return NextResponse.json({ ResultCode: 1, ResultDesc: error.message });
+  }
+}*/
+
+// app/api/mpesa/callback/route.ts
+import { NextResponse } from 'next/server';
+import { dbConnect } from '@/lib/mongodb';
+import Purchase from '@/models/Purchase';
+
+
+export async function POST(req: Request) {
+  try {
+    await dbConnect();
+    
+    const data = await req.json();
+    const result = data?.Body?.stkCallback;
+
+    console.log('🔁 M-Pesa Callback Received:', JSON.stringify(result, null, 2));
+
+    if (!result) {
+      console.error('❌ Invalid callback data structure');
+      return NextResponse.json({ ResultCode: 1, ResultDesc: 'Invalid callback data' });
+    }
+
+    const {
+      MerchantRequestID,
+      CheckoutRequestID,
+      ResultCode,
+      ResultDesc,
+      CallbackMetadata
+    } = result;
+
+    // Find purchase by payment metadata
+    let purchase = await Purchase.findOne({ 
+      'paymentMetadata.checkoutRequestID': CheckoutRequestID 
+    });
+
+    if (!purchase) {
+      purchase = await Purchase.findOne({ 
+        'paymentMetadata.merchantRequestID': MerchantRequestID 
+      });
+    }
+
+    if (!purchase) {
+      console.error(`❌ No purchase found for transaction: ${CheckoutRequestID}`);
+      return NextResponse.json({ ResultCode: 1, ResultDesc: 'Purchase not found' });
+    }
+
+    console.log(`📋 Found purchase: ${purchase.purchaseNumber}`, {
+      currentStatus: purchase.status,
+    });
+
+    // Process successful payment
+    if (ResultCode === 0) {
+      console.log(`✅ Payment successful for ${purchase.purchaseNumber}`);
+      
+      const items = CallbackMetadata?.Item || [];
+      
+      const mpesaReceiptNumber = items.find((i: any) => i.Name === 'MpesaReceiptNumber')?.Value;
+      const transactionDate = items.find((i: any) => i.Name === 'TransactionDate')?.Value;
+      const phoneNumber = items.find((i: any) => i.Name === 'PhoneNumber')?.Value;
+      const amount = items.find((i: any) => i.Name === 'Amount')?.Value;
+      
+      console.log(`📝 Extracted receipt number: ${mpesaReceiptNumber}`);
+      
+      // Update purchase record
+      await purchase.markAsCompleted(mpesaReceiptNumber || CheckoutRequestID, {
+        resultCode: ResultCode,
+        resultDesc: ResultDesc,
+        transactionDate: transactionDate?.toString(),
+        phoneNumber: phoneNumber,
+        mpesaReceiptNumber: mpesaReceiptNumber,
+        checkoutRequestID: CheckoutRequestID,
+        merchantRequestID: MerchantRequestID,
+        amount: amount,
+      });
+      
+      console.log(`💾 Purchase updated: ${purchase.purchaseNumber}`, {
+        receipt: mpesaReceiptNumber,
+        status: purchase.status,
+      });
+      
+    } else {
+      // Payment failed
+      console.error(`❌ Payment failed for ${purchase.purchaseNumber}: ${ResultDesc}`);
+      
+      await purchase.markAsFailed(ResultCode.toString(), ResultDesc);
+      
+      console.log(`💾 Failed purchase recorded: ${purchase.purchaseNumber}`, {
+        errorCode: ResultCode,
+        errorMessage: ResultDesc,
+      });
+    }
+    
+    // Always return success to Safaricom
+    return NextResponse.json({ ResultCode: 0, ResultDesc: 'Success' });
+    
+  } catch (error: any) {
+    console.error('❌ Callback processing error:', error);
     return NextResponse.json({ ResultCode: 1, ResultDesc: error.message });
   }
 }
