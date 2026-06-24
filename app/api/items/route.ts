@@ -1,5 +1,5 @@
 // C:\Users\Administrator\Desktop\linkchemtwo\app\api\items\route.ts
-import { NextRequest, NextResponse } from 'next/server';
+/*import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db/mongoose';
 import Item from '@/models/Item';
 import { withCORS } from '@/lib/cors/cors';
@@ -201,4 +201,79 @@ async function updateItem(request: NextRequest) {
 export const GET = withCORS(getItems);
 export const POST = withCORS(createItem);
 export const DELETE = withCORS(deleteItem);
-export const PUT = withCORS(updateItem);
+export const PUT = withCORS(updateItem);*/
+
+import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
+import dbConnect from '@/lib/db/mongoose';
+import Item from '@/models/Item';
+import { withCORS } from '@/lib/cors/cors';
+
+function getIdFromUrl(request: NextRequest): string | null {
+  const pathname = new URL(request.url).pathname;
+
+  // /api/items/6a3566dbe6332441a1282849
+  const segments = pathname.split('/').filter(Boolean);
+
+  return segments[segments.length - 1] || null;
+}
+
+async function getItem(request: NextRequest) {
+  try {
+    await dbConnect();
+
+    const id = getIdFromUrl(request);
+
+    if (!id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Item ID is required',
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid item ID',
+        },
+        { status: 400 }
+      );
+    }
+
+    const item = await Item.findById(id).lean();
+
+    if (!item) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Item not found',
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: item,
+    });
+  } catch (error) {
+    console.error('Error fetching item:', error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch item',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export const GET = withCORS(getItem);
