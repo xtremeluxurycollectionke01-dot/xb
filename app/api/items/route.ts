@@ -209,37 +209,30 @@ import dbConnect from '@/lib/db/mongoose';
 import Item from '@/models/Item';
 import { withCORS } from '@/lib/cors/cors';
 
-function getIdFromUrl(request: NextRequest): string | null {
-  const pathname = new URL(request.url).pathname;
+function extractId(req: NextRequest) {
+  const url = new URL(req.url);
+  const parts = url.pathname.split('/');
 
-  // /api/items/6a3566dbe6332441a1282849
-  const segments = pathname.split('/').filter(Boolean);
-
-  return segments[segments.length - 1] || null;
+  // /api/items/:id
+  return parts[parts.length - 1];
 }
 
 async function getItem(request: NextRequest) {
   try {
     await dbConnect();
 
-    const id = getIdFromUrl(request);
+    const id = extractId(request);
 
     if (!id) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Item ID is required',
-        },
+        { success: false, error: 'Missing ID' },
         { status: 400 }
       );
     }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid item ID',
-        },
+        { success: false, error: 'Invalid ID' },
         { status: 400 }
       );
     }
@@ -248,10 +241,7 @@ async function getItem(request: NextRequest) {
 
     if (!item) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Item not found',
-        },
+        { success: false, error: 'Item not found' },
         { status: 404 }
       );
     }
@@ -266,10 +256,7 @@ async function getItem(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Failed to fetch item',
+        error: error instanceof Error ? error.message : 'Server error',
       },
       { status: 500 }
     );
