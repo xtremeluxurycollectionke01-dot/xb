@@ -337,7 +337,8 @@ export function withCORS(
   handler: Handler, 
   origins?: string | string[] | CORSOptions
 ) {
-  return async (req: NextRequest) => {
+  //return async (req: NextRequest) => {
+  return async (req: NextRequest, context?: any) => {
     const origin = req.headers.get('origin') || '';
     const appType = req.headers.get('x-app-type') || 'web';
     
@@ -416,7 +417,8 @@ export function withCORS(
 
     try {
       // Handle actual request
-      const response = await handler(req);
+      //const response = await handler(req);
+      const response = await handler(req, context);
       
       // Add CORS headers to response
       response.headers.set('Access-Control-Allow-Origin', allowedOrigin);
