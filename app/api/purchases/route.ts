@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
 
     // Get authenticated user
     const user = await requireAuth(request);
+    const purchaseNumber = `PUR-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     
     if (!user) {
       return NextResponse.json(
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
       userEmail: user.email,
       items,
       totalAmount,
+      purchaseNumber,
       notes,
       status: 'PENDING',
     });
