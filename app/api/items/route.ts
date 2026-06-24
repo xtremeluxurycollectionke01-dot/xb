@@ -1,5 +1,5 @@
 // C:\Users\Administrator\Desktop\linkchemtwo\app\api\items\route.ts
-/*import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db/mongoose';
 import Item from '@/models/Item';
 import { withCORS } from '@/lib/cors/cors';
@@ -201,66 +201,4 @@ async function updateItem(request: NextRequest) {
 export const GET = withCORS(getItems);
 export const POST = withCORS(createItem);
 export const DELETE = withCORS(deleteItem);
-export const PUT = withCORS(updateItem);*/
-
-import { NextRequest, NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import dbConnect from '@/lib/db/mongoose';
-import Item from '@/models/Item';
-import { withCORS } from '@/lib/cors/cors';
-
-function extractId(req: NextRequest) {
-  const url = new URL(req.url);
-  const parts = url.pathname.split('/');
-
-  // /api/items/:id
-  return parts[parts.length - 1];
-}
-
-async function getItem(request: NextRequest) {
-  try {
-    await dbConnect();
-
-    const id = extractId(request);
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'Missing ID' },
-        { status: 400 }
-      );
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid ID' },
-        { status: 400 }
-      );
-    }
-
-    const item = await Item.findById(id).lean();
-
-    if (!item) {
-      return NextResponse.json(
-        { success: false, error: 'Item not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: item,
-    });
-  } catch (error) {
-    console.error('Error fetching item:', error);
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Server error',
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export const GET = withCORS(getItem);
+export const PUT = withCORS(updateItem);
