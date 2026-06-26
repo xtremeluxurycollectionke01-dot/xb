@@ -97,7 +97,7 @@ const sendPushNotification = async (receiverId, senderId, content, messageId) =>
   if (!firebaseInitialized) return;
 
   try {
-    const User = require("./models/User");
+    const User = require("./models/UserModel/User");
     const receiver = await User.findById(receiverId).select("fcmTokens");
 
     if (!receiver || !receiver.fcmTokens || receiver.fcmTokens.length === 0) {
